@@ -1,4 +1,4 @@
-package ru.itis.insulinkapp.ui.theme
+package ru.itis.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

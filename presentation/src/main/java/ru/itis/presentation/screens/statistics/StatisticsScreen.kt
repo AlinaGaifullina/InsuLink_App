@@ -1,0 +1,44 @@
+package ru.itis.presentation.screens.statistics
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import ru.itis.presentation.R
+
+
+@Composable
+fun StatisticsScreen(
+    navController: NavController,
+    viewModel: StatisticsViewModel = hiltViewModel()
+) {
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val eventHandler = viewModel::event
+    val action by viewModel.action.collectAsStateWithLifecycle(null)
+
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxSize()
+            .padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.glucose_statistics),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
