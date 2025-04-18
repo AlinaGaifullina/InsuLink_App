@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Общее -->
+    <string name="next">Далее</string>
+    <string name="done">Готово</string>
+    <string name="save">Сохранить</string>
+    <string name="change">Изменить</string>
+    <string name="save_and_send">Сохранить изменения и отправить</string>
+    <string name="add">Добавить</string>
+    <string name="cancel">Отмена</string>
+    <string name="good">Хорошо</string>
+    <string name="insulin">Инсулин</string>
+
+
+    <!-- Вход/Регистрация -->
     <string name="sign_in">Войти</string>
     <string name="sign_up">Зарегистрироваться</string>
-    <string name="action_log">Журнал действий</string>
-    <string name="glucose_statistics">Статистика глюкозы</string>
     <string name="greeting_title">Добро пожаловать!</string>
     <string name="greeting_text">Перед началом работы с приложением вы можете заполнить информацию о себе</string>
     <string name="fill_profile">Заполнить профиль</string>
     <string name="skip">Пропустить</string>
-    <string name="next">Далее</string>
-    <string name="done">Готово</string>
     <string name="fill_personal_info">Заполните личную информацию о себе</string>
     <string name="fill_health_info">Заполните информацию о своем здоровье</string>
-    <string name="pump">Помпа</string>
-    <string name="profile">Профиль</string>
-    <string name="edit_profile">Редактирование профиля</string>
-    <string name="save">Сохранить</string>
-    <string name="cancel">Отмена</string>
-    <string name="good">Хорошо</string>
-    <string name="insulin">Инсулин</string>
     <string name="email">Email</string>
     <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
     <string name="account_no">Нет аккаунта?</string>
     <string name="account_yes">Уже есть аккаунт</string>
     <string name="user_name">Имя</string>
@@ -30,7 +33,33 @@
     <string name="user_gender">Пол</string>
     <string name="gender_male">Мужчина</string>
     <string name="gender_female">Женщина</string>
-    <string name="repeat_password">Повторите пароль</string>
+
+    <!-- Профиль -->
+    <string name="pump">Помпа</string>
+    <string name="profile">Профиль</string>
+    <string name="edit_profile">Редактирование профиля</string>
     <string name="user_height">Рост(см)</string>
     <string name="user_weight">Вес(кг)</string>
+    <string name="gender">Пол</string>
+    <string name="connect">Подключить</string>
+    <string name="pump_not_connected">Помпа не подключена</string>
+    <string name="carbohydrates_measurement_unit">Единица измерения углеводов</string>
+    <string name="bread_unit">ХЕ</string>
+    <string name="grams_unit">Граммы</string>
+    <string name="glucose_measurement_unit">Единица измерения глюкозы</string>
+    <string name="mmol_l_long">ммоль/л</string>
+    <string name="mmol_l_short">мм/л</string>
+    <string name="mg_dl">мг/дл</string>
+    <string name="active_insulin_time">Время активного инсулина (часы)</string> sensitivity
+    <string name="carbohydrate_coefficients">Углеводные коэффициенты</string>
+    <string name="insulin_sensitivity">Чувствительность</string>
+    <string name="target_glucose">Целевая глюкоза</string>
+    <string name="unit_hour">ед/ч</string>
+    <string name="add_new_interval">Добавить новый интервал</string>
+
+    <!-- Журнал действий -->
+    <string name="action_log">Журнал действий</string>
+
+    <!-- Статистика глюкозы -->
+    <string name="glucose_statistics">Статистика глюкозы</string>
 </resources>

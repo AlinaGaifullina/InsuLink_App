@@ -12,17 +12,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,8 +27,6 @@ import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
 import ru.itis.presentation.navigation.graphs.AuthScreen
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
-import ru.itis.presentation.screens.auth.sign_in.SignInEvent
-import ru.itis.presentation.screens.auth.sign_up.SignUpSideEffect
 
 @Composable
 fun GreetingScreen(

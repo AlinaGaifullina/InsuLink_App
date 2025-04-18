@@ -24,7 +24,9 @@ import androidx.navigation.NavController
 import ru.itis.presentation.R
 import ru.itis.presentation.components.AuthNumberTextField
 import ru.itis.presentation.components.BaseButton
+import ru.itis.presentation.components.DropdownTextField
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
+import ru.itis.presentation.utils.InsulinRepository
 
 @Composable
 fun FillHealthScreen(
@@ -66,39 +68,50 @@ fun FillHealthMainContent(state: FillHealthState, eventHandler: (FillHealthEvent
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSecondary
             )
+            Spacer(modifier = Modifier.height(50.dp))
+            AuthNumberTextField(
+                stringResource(id = R.string.user_height),
+                if (state.height == 0.0f) "" else state.height.toString()
+            ) {
+                eventHandler.invoke(
+                    FillHealthEvent.OnHeightChange(
+                        if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            AuthNumberTextField(
+                stringResource(id = R.string.user_weight),
+                if (state.weight == 0.0f) "" else state.weight.toString()
+            ) {
+                eventHandler.invoke(
+                    FillHealthEvent.OnWeightChange(
+                        if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = state.weight.toString(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondary
+                text = stringResource(R.string.insulin),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
             )
-            Spacer(modifier = Modifier.height(30.dp))
-        }
-
-        AuthNumberTextField(
-            stringResource(id = R.string.user_height),
-            if (state.weight == 0.0f) "" else state.height.toString()
-        ) {
-            eventHandler.invoke(
-                FillHealthEvent.OnHeightChange(
-                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
-                )
-            )
-        }
-
-        AuthNumberTextField(
-            stringResource(id = R.string.user_weight),
-            if (state.weight == 0.0f) "" else state.weight.toString()
-        ) {
-            eventHandler.invoke(
-                FillHealthEvent.OnWeightChange(
-                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
-                )
+            DropdownTextField(
+                selectedItem = state.insulin,
+                itemList = InsulinRepository.insulinList.map { it.name },
+                onSelect = {
+                    eventHandler.invoke(
+                        FillHealthEvent.OnInsulinChange(it)
+                    )
+                },
+                modifier = Modifier,
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = MaterialTheme.colorScheme.onPrimary,
+                iconColor = MaterialTheme.colorScheme.onPrimary,
+                textFieldModifier = Modifier
             )
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
 
         // Buttons
         Column {

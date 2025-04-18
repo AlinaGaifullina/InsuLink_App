@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import ru.itis.domain.model.GenderType
-import ru.itis.presentation.screens.auth.sign_in.SignInEvent
-import ru.itis.presentation.screens.auth.sign_in.SignInSideEffect
 import javax.inject.Inject
 
 

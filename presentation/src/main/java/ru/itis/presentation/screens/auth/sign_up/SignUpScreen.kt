@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
-import ru.itis.presentation.navigation.BottomNavigationItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,8 @@ import ru.itis.presentation.components.AuthBottomText
 import ru.itis.presentation.components.AuthPasswordField
 import ru.itis.presentation.components.AuthTextField
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import ru.itis.presentation.components.BaseButton
 
 
@@ -52,12 +53,12 @@ fun SignUpScreen(
 
 @Composable
 private fun SignUpMainContent(state: SignUpState, eventHandler: (SignUpEvent) -> Unit) {
-
-
+    val scrollState = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
+            .verticalScroll(scrollState)
             .padding(horizontal = 20.dp)
             .padding(top = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
