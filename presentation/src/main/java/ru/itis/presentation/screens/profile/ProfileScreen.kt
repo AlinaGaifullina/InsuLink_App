@@ -48,6 +48,7 @@ import ru.itis.presentation.components.HeaderView
 import ru.itis.presentation.components.SwitchButton
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
 import ru.itis.presentation.utils.InsulinRepository
+import ru.itis.presentation.utils.TimeUtils
 
 
 @Composable
@@ -87,7 +88,7 @@ fun ProfileScreen(
             Column (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 16.dp)
             ) {
                 SwitchButton(
                     modifier = Modifier
@@ -110,7 +111,6 @@ fun ProfileScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(20.dp))
         if(state.isProfileMode) {
             ProfileMainContent(state, eventHandler)
         } else {
@@ -219,6 +219,7 @@ fun ProfileMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.insulin),
             style = MaterialTheme.typography.labelLarge,
@@ -253,7 +254,7 @@ fun PumpBoxContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     if (!state.isPumpConnected) {
         BaseButton(
             text = stringResource(R.string.connect),
@@ -262,7 +263,7 @@ fun PumpBoxContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
             textColor = MaterialTheme.colorScheme.onSecondary,
             onClick = { eventHandler.invoke(ProfileEvent.OnConnectButtonClick) }
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -275,6 +276,7 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.carbohydrates_measurement_unit),
             style = MaterialTheme.typography.labelSmall,
@@ -379,13 +381,112 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
                         onEditClick = {
                             eventHandler.invoke(ProfileEvent.OnCarbCoefExpandedItemChange(it))
                         },
-                        onSaveClick = {},
+                        onSaveClick = {
+                            eventHandler.invoke(ProfileEvent.OnSaveCarbCoefItem(it))
+                        },
                         onDeleteClick = {},
-                        expandedItem = state.carbCoefExpandedItemIndex
+                        onAddClick = {},
+                        expandedItem = state.carbCoefExpandedItemIndex,
+                        newStartTime = state.carbCoefNewStartTime,
+                        newEndTime = state.carbCoefNewEndTime,
+                        newUnitPerHourValue = if (state.carbCoefNewValue == 0.0f) "" else state.carbCoefNewValue.toString(),
+                        newOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.carbCoefNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.carbCoefNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.carbCoefNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.carbCoefNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnCarbCoefValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnCarbCoefNewValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        itemStartTime = state.carbCoefItemStartTime,
+                        itemEndTime = state.carbCoefItemEndTime,
+                        itemUnitPerHourValue = if (state.carbCoefItemValue == 0.0f) "" else state.carbCoefItemValue.toString(),
+                        itemOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.carbCoefItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.carbCoefItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.carbCoefItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.carbCoefItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnCarbCoefItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnCarbCoefValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnCarbCoefItemValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        }
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }

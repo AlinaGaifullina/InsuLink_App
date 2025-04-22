@@ -34,14 +34,21 @@ data class ProfileState(
     val activeInsulinTime: Float = 0.0f,
     // Carb
     val listOfCarbCoefs: List<CarbCoef> = listOf(
-        CarbCoef("1",0,0,3,0,2.0f),
-        CarbCoef("1",0,0,3,0,2.0f),
-        CarbCoef("1",0,0,3,0,2.0f),
-        CarbCoef("1",0,0,3,0,2.0f),
-        CarbCoef("1",0,0,3,0,2.0f)
+        CarbCoef("1","00:00","03:00",2.0f),
+        CarbCoef("1","00:00","03:00",2.0f),
+        CarbCoef("1","00:00","03:00",2.0f),
+        CarbCoef("1","00:00","03:00",2.0f),
+        CarbCoef("1","00:00","03:00",2.0f),
+        CarbCoef("1","00:00","03:00",2.0f),
     ),
     val isCarbCoefExpanded: Boolean = false,
     val carbCoefExpandedItemIndex: Int? = null,
+    val carbCoefNewStartTime: String = "00:00",
+    val carbCoefNewEndTime: String = "03:00",
+    val carbCoefNewValue: Float = 0.0f,
+    val carbCoefItemStartTime: String = "00:00",
+    val carbCoefItemEndTime: String = "03:00",
+    val carbCoefItemValue: Float = 0.0f,
     // Sensitivity
     val listOfSensitivity: List<InsulinSensitivity> = listOf(),
     val isSensitivityExpanded: Boolean = false,
@@ -64,8 +71,15 @@ sealed interface ProfileEvent {
     data class OnInsulinChange(val value: String) : ProfileEvent
     data class OnActiveInsulinChange(val value: Float) : ProfileEvent
     data class OnCarbCoefExpandedItemChange(val value: Int) : ProfileEvent
+    data class OnCarbCoefNewValueChange(val value: Float) : ProfileEvent
+    data class OnCarbCoefNewStartTimeChange(val value: String) : ProfileEvent
+    data class OnCarbCoefNewEndTimeChange(val value: String) : ProfileEvent
+    data class OnCarbCoefItemValueChange(val value: Float) : ProfileEvent
+    data class OnCarbCoefItemStartTimeChange(val value: String) : ProfileEvent
+    data class OnCarbCoefItemEndTimeChange(val value: String) : ProfileEvent
     data class OnSensitivityExpandedItemChange(val value: Int) : ProfileEvent
     data class OnGlucoseExpandedItemChange(val value: Int) : ProfileEvent
+    data class OnSaveCarbCoefItem(val value: Int) : ProfileEvent
 }
 
 sealed interface ProfileSideEffect {
@@ -90,6 +104,13 @@ class ProfileViewModel @Inject constructor(
             is ProfileEvent.OnInsulinChange -> onInsulinChange(profileEvent.value)
             is ProfileEvent.OnActiveInsulinChange -> onActiveInsulinChange(profileEvent.value)
             is ProfileEvent.OnCarbCoefExpandedItemChange -> onCarbCoefExpandedItemChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefNewValueChange -> onCarbCoefNewValueChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefNewStartTimeChange -> onCarbCoefNewStartTimeChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefNewEndTimeChange -> onCarbCoefNewEndTimeChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefItemValueChange -> onCarbCoefItemValueChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefItemStartTimeChange -> onCarbCoefItemStartTimeChange(profileEvent.value)
+            is ProfileEvent.OnCarbCoefItemEndTimeChange -> onCarbCoefItemEndTimeChange(profileEvent.value)
+            is ProfileEvent.OnSaveCarbCoefItem -> onSaveCarbCoefItem(profileEvent.value)
             is ProfileEvent.OnSensitivityExpandedItemChange -> onSensitivityExpandedItemChange(profileEvent.value)
             is ProfileEvent.OnGlucoseExpandedItemChange -> onGlucoseExpandedItemChange(profileEvent.value)
             ProfileEvent.OnEditProfileButtonClick -> onEditProfileButtonClick()
@@ -112,14 +133,39 @@ class ProfileViewModel @Inject constructor(
 
     private fun onCarbCoefExpandedItemChange(index: Int) {
         val isEmpty = _state.value.carbCoefExpandedItemIndex == null
-        _state.tryEmit(_state.value.copy(
-            carbCoefExpandedItemIndex = if(isEmpty){
-                index
-            } else {
-                if (index == _state.value.carbCoefExpandedItemIndex){
+        if(isEmpty){
+            _state.tryEmit(_state.value.copy(
+                carbCoefExpandedItemIndex = index,
+                carbCoefItemValue = _state.value.listOfCarbCoefs[index].coef,
+                carbCoefItemStartTime = _state.value.listOfCarbCoefs[index].startTime,
+                carbCoefItemEndTime = _state.value.listOfCarbCoefs[index].endTime,
+            ))
+        } else {
+            _state.tryEmit(_state.value.copy(
+                carbCoefExpandedItemIndex = if (index == _state.value.carbCoefExpandedItemIndex){
                     null
-                } else index
-            }
+                } else index,
+                carbCoefItemValue = _state.value.listOfCarbCoefs[index].coef,
+                carbCoefItemStartTime = _state.value.listOfCarbCoefs[index].startTime,
+                carbCoefItemEndTime = _state.value.listOfCarbCoefs[index].endTime,
+            ))
+        }
+    }
+
+    private fun onSaveCarbCoefItem(index: Int) {
+        _state.tryEmit(_state.value.copy(
+            listOfCarbCoefs = _state.value.listOfCarbCoefs.mapIndexed { i, item ->
+                if (i == index) {
+                    item.copy(
+                        startTime = _state.value.carbCoefItemStartTime,
+                        endTime = _state.value.carbCoefItemEndTime,
+                        coef = _state.value.carbCoefItemValue
+                    )
+                } else {
+                    item
+                }
+            },
+            carbCoefExpandedItemIndex = null
         ))
     }
 
@@ -158,6 +204,31 @@ class ProfileViewModel @Inject constructor(
             carbCoefExpandedItemIndex = null
         ))
     }
+
+    private fun onCarbCoefNewValueChange(value: Float) {
+        _state.tryEmit(_state.value.copy(carbCoefNewValue = value))
+    }
+
+    private fun onCarbCoefNewStartTimeChange(startTime: String) {
+        _state.tryEmit(_state.value.copy(carbCoefNewStartTime = startTime))
+    }
+
+    private fun onCarbCoefNewEndTimeChange(endTime: String) {
+        _state.tryEmit(_state.value.copy(carbCoefNewEndTime = endTime))
+    }
+
+    private fun onCarbCoefItemValueChange(value: Float) {
+        _state.tryEmit(_state.value.copy(carbCoefItemValue = value))
+    }
+
+    private fun onCarbCoefItemStartTimeChange(startTime: String) {
+        _state.tryEmit(_state.value.copy(carbCoefItemStartTime = startTime))
+    }
+
+    private fun onCarbCoefItemEndTimeChange(endTime: String) {
+        _state.tryEmit(_state.value.copy(carbCoefItemEndTime = endTime))
+    }
+
     private fun onSensitivityExpandedChange() {
         _state.tryEmit(_state.value.copy(
             isSensitivityExpanded = !_state.value.isSensitivityExpanded,

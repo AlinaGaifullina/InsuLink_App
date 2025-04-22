@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,7 +25,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +52,7 @@ fun HeaderView(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -95,6 +99,20 @@ fun ExpandableViewCarbCoefs(
     onEditClick: (Int) -> Unit,
     onSaveClick: (Int) -> Unit,
     onDeleteClick: (Int) -> Unit,
+    onAddClick: () -> Unit,
+    newStartTime: String,
+    newEndTime: String,
+    newUnitPerHourValue: String,
+    newOnUpClick: (Int) -> Unit,
+    newOnDownClick: (Int) -> Unit,
+    newOnCarbCoefValueChange: (String) -> Unit,
+
+    itemStartTime: String,
+    itemEndTime: String,
+    itemUnitPerHourValue: String,
+    itemOnUpClick: (Int) -> Unit,
+    itemOnDownClick: (Int) -> Unit,
+    itemOnCarbCoefValueChange: (String) -> Unit,
 //    isBreadUnits: Boolean,
 //    isMmolLiter: Boolean,
     expandedItem: Int?
@@ -120,6 +138,8 @@ fun ExpandableViewCarbCoefs(
         )
     }
 
+    var isAddCardVisible by remember { mutableStateOf(false) }
+
     AnimatedVisibility(
         visible = isExpanded,
         enter = expandTransition,
@@ -128,7 +148,7 @@ fun ExpandableViewCarbCoefs(
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
-                .padding(16.dp),
+                .padding(top = 8.dp, bottom = 16.dp, start = 8.dp, end = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             listOfCarbCoef.forEachIndexed { index, coef ->
@@ -141,7 +161,7 @@ fun ExpandableViewCarbCoefs(
                         .padding(horizontal = 16.dp),
                 ) {
                     Text(
-                        text = "${coef.startHour}:${coef.startMinute}-${coef.endHour}:${coef.endMinute}",
+                        text = "${coef.startTime}-${coef.endTime}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.align(Alignment.CenterStart)
@@ -166,7 +186,7 @@ fun ExpandableViewCarbCoefs(
                                 painterResource(R.drawable.ic_edit),
                                 contentDescription = "icon_edit",
                                 modifier = Modifier
-                                    .size(22.dp),
+                                    .size(18.dp),
                                 MaterialTheme.colorScheme.secondary
                             )
                         }
@@ -177,6 +197,33 @@ fun ExpandableViewCarbCoefs(
                     onSaveClick = onSaveClick,
                     onDeleteClick = onDeleteClick,
                     expandedItem = expandedItem,
+                    itemStartTime = itemStartTime,
+                    itemEndTime = itemEndTime,
+                    itemUnitPerHourValue = itemUnitPerHourValue,
+                    onUpItemClick = itemOnUpClick,
+                    onDownItemClick = itemOnDownClick,
+                    onCarbCoefValueChange = itemOnCarbCoefValueChange,
+                )
+            }
+            if(!isAddCardVisible){
+                Spacer(modifier = Modifier.height(16.dp))
+                BaseButton(
+                    text = stringResource(R.string.add),
+                    textColor = MaterialTheme.colorScheme.onTertiary,
+                    backgroundColor = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {isAddCardVisible = true}
+                )
+            } else {
+                AddIntervalCard(
+                    onCloseClick = {isAddCardVisible = false},
+                    onAddClick = onAddClick,
+                    startTime = newStartTime,
+                    endTime = newEndTime,
+                    unitPerHourValue = newUnitPerHourValue,
+                    onUpClick = newOnUpClick,
+                    onDownClick = newOnDownClick,
+                    onCarbCoefValueChange = newOnCarbCoefValueChange
                 )
             }
         }
@@ -188,7 +235,13 @@ fun ExpandableCarbCoefItem(
     isExpanded: Boolean,
     onSaveClick: (Int) -> Unit,
     onDeleteClick: (Int) -> Unit,
-    expandedItem: Int?
+    expandedItem: Int?,
+    itemStartTime: String,
+    itemEndTime: String,
+    itemUnitPerHourValue: String,
+    onUpItemClick: (Int) -> Unit,
+    onDownItemClick: (Int) -> Unit,
+    onCarbCoefValueChange: (String) -> Unit,
 ) {
 //    val measurementUnit = if(is)
     // Opening Animation
@@ -218,11 +271,169 @@ fun ExpandableCarbCoefItem(
     ) {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
-                .padding(16.dp),
+                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("развернут")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(MaterialTheme.colorScheme.tertiary)
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    VerticalArrowButton(
+                        onUpClick = {onUpItemClick(0)},
+                        onDownClick = {onDownItemClick(0)},
+                        text = itemStartTime,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Text(
+                        text ="-",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    VerticalArrowButton(
+                        onUpClick = {onUpItemClick(1)},
+                        onDownClick = {onDownItemClick(1)},
+                        text = itemEndTime,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    NumberTextField(
+                        modifier = Modifier.width(80.dp),
+                        value = itemUnitPerHourValue,
+                        onChange = {onCarbCoefValueChange(it)}
+                    )
+                    Text(
+                        text = stringResource(R.string.unit_hour),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                }
+                BaseButton(
+                    text = stringResource(R.string.save),
+                    textColor = MaterialTheme.colorScheme.onTertiary,
+                    backgroundColor = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    onClick = {
+                        if(expandedItem != null){
+                            onSaveClick(expandedItem)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AddIntervalCard(
+    onCloseClick: () -> Unit,
+    startTime: String,
+    endTime: String,
+    unitPerHourValue: String,
+    onUpClick: (Int) -> Unit,
+    onDownClick: (Int) -> Unit,
+    onCarbCoefValueChange: (String) -> Unit,
+    onAddClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.add_new_interval),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                IconButton(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    onClick = onCloseClick
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_close),
+                        contentDescription = "icon_edit",
+                        modifier = Modifier
+                            .size(22.dp),
+                        MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                VerticalArrowButton(
+                    onUpClick = {onUpClick(0)},
+                    onDownClick = {onDownClick(0)},
+                    text = startTime,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Text(
+                    text ="-",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                VerticalArrowButton(
+                    onUpClick = {onUpClick(1)},
+                    onDownClick = {onDownClick(1)},
+                    text = endTime,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                NumberTextField(
+                    modifier = Modifier.width(100.dp),
+                    value = unitPerHourValue,
+                    onChange = {onCarbCoefValueChange(it)}
+                )
+                Text(
+                    text = stringResource(R.string.unit_hour),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+            }
+            BaseButton(
+                text = stringResource(R.string.add),
+                textColor = MaterialTheme.colorScheme.onTertiary,
+                backgroundColor = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                onClick = onAddClick
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
