@@ -4,6 +4,7 @@
     <string name="next">Далее</string>
     <string name="done">Готово</string>
     <string name="save">Сохранить</string>
+    <string name="delete">Удалить</string>
     <string name="change">Изменить</string>
     <string name="save_and_send">Сохранить изменения и отправить</string>
     <string name="add">Добавить</string>

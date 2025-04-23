@@ -31,10 +31,11 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color(0xFF464545),
     secondary = Color(0xFF78B162),
     onSecondary = Color(0xFFF3F7EF),
+    secondaryContainer = Color(0xFFD5E0D0),
     tertiary = Color(0xFFF3C96F),
     onTertiary = Color(0xFF564E3D),
+    tertiaryContainer = Color(0xFFECE5D6),
     primaryContainer = Color(0xFFE7EDE3),
-    secondaryContainer = Color(0xFFF5EFE2),
     surfaceTint = Color(0xFF596943),
     surface = Color(0xFFB1433B)
 )

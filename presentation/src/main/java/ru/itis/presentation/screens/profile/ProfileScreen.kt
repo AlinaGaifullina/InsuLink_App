@@ -43,9 +43,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
 import ru.itis.presentation.components.DropdownTextField
-import ru.itis.presentation.components.ExpandableViewCarbCoefs
-import ru.itis.presentation.components.HeaderView
+import ru.itis.presentation.components.pump_settings.HeaderView
 import ru.itis.presentation.components.SwitchButton
+import ru.itis.presentation.components.pump_settings.carb_coef.ExpandableViewCarbCoefs
+import ru.itis.presentation.components.pump_settings.glucose.ExpandableViewGlucose
+import ru.itis.presentation.components.pump_settings.ins_sensitivity.ExpandableViewInsSens
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
 import ru.itis.presentation.utils.InsulinRepository
 import ru.itis.presentation.utils.TimeUtils
@@ -364,9 +366,10 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
         ) {
             Card(
                 modifier = Modifier,
-                elevation = CardDefaults.cardElevation(10.dp),
+                elevation = CardDefaults.cardElevation(4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
+                // CarbCoef
                 Column {
                     HeaderView(
                         headerText = stringResource(R.string.carbohydrate_coefficients),
@@ -384,8 +387,12 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
                         onSaveClick = {
                             eventHandler.invoke(ProfileEvent.OnSaveCarbCoefItem(it))
                         },
-                        onDeleteClick = {},
-                        onAddClick = {},
+                        onDeleteClick = {
+                            eventHandler.invoke(ProfileEvent.OnDeleteCarbCoefItem(it))
+                        },
+                        onAddClick = {
+                            eventHandler.invoke(ProfileEvent.OnAddCarbCoefItem)
+                        },
                         expandedItem = state.carbCoefExpandedItemIndex,
                         newStartTime = state.carbCoefNewStartTime,
                         newEndTime = state.carbCoefNewEndTime,
@@ -483,6 +490,288 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
                                 )
                             )
                         }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // InsSens
+            Card(
+                modifier = Modifier,
+                elevation = CardDefaults.cardElevation(4.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column {
+                    HeaderView(
+                        headerText = stringResource(R.string.insulin_sensitivity),
+                        onClickItem = {
+                            eventHandler.invoke(ProfileEvent.OnInsSensExpandedChange)
+                        },
+                        isExpanded = state.isInsSensExpanded,
+                    )
+                    ExpandableViewInsSens(
+                        listOfInsSens = state.listOfInsSens,
+                        isExpanded = state.isInsSensExpanded,
+                        onEditClick = {
+                            eventHandler.invoke(ProfileEvent.OnInsSensExpandedItemChange(it))
+                        },
+                        onSaveClick = {
+                            eventHandler.invoke(ProfileEvent.OnSaveInsSensItem(it))
+                        },
+                        onDeleteClick = {
+                            eventHandler.invoke(ProfileEvent.OnDeleteInsSensItem(it))
+                        },
+                        onAddClick = {
+                            eventHandler.invoke(ProfileEvent.OnAddInsSensItem)
+                        },
+                        expandedItem = state.insSensExpandedItemIndex,
+                        newStartTime = state.insSensNewStartTime,
+                        newEndTime = state.insSensNewEndTime,
+                        newValue = if (state.insSensNewValue == 0.0f) "" else state.insSensNewValue.toString(),
+                        newOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.insSensNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.insSensNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.insSensNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.insSensNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnInsSensValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnInsSensNewValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        itemStartTime = state.insSensItemStartTime,
+                        itemEndTime = state.insSensItemEndTime,
+                        itemValue = if (state.insSensItemValue == 0.0f) "" else state.insSensItemValue.toString(),
+                        itemOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.insSensItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.insSensItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.insSensItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.insSensItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnInsSensItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnInsSensValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnInsSensItemValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        isMmolLiter = state.isMmolLiter,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Glucose
+            Card(
+                modifier = Modifier,
+                elevation = CardDefaults.cardElevation(4.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column {
+                    HeaderView(
+                        headerText = stringResource(R.string.target_glucose),
+                        onClickItem = {
+                            eventHandler.invoke(ProfileEvent.OnGlucoseExpandedChange)
+                        },
+                        isExpanded = state.isGlucoseExpanded,
+                    )
+                    ExpandableViewGlucose(
+                        listOfGlucose = state.listOfGlucose,
+                        isExpanded = state.isGlucoseExpanded,
+                        onEditClick = {
+                            eventHandler.invoke(ProfileEvent.OnGlucoseExpandedItemChange(it))
+                        },
+                        onSaveClick = {
+                            eventHandler.invoke(ProfileEvent.OnSaveGlucoseItem(it))
+                        },
+                        onDeleteClick = {
+                            eventHandler.invoke(ProfileEvent.OnDeleteGlucoseItem(it))
+                        },
+                        onAddClick = {
+                            eventHandler.invoke(ProfileEvent.OnAddGlucoseItem)
+                        },
+                        expandedItem = state.glucoseExpandedItemIndex,
+                        newStartTime = state.glucoseNewStartTime,
+                        newEndTime = state.glucoseNewEndTime,
+                        newStartValue = if (state.glucoseNewStartValue == 0.0f) "" else state.glucoseNewStartValue.toString(),
+                        newEndValue = if (state.glucoseNewEndValue == 0.0f) "" else state.glucoseNewEndValue.toString(),
+                        newOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.glucoseNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.glucoseNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.glucoseNewStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseNewStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.glucoseNewEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseNewEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        newOnGlucoseStartValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnGlucoseNewStartValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        newOnGlucoseEndValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnGlucoseNewEndValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        itemStartTime = state.glucoseItemStartTime,
+                        itemEndTime = state.glucoseItemEndTime,
+                        itemStartValue = if (state.glucoseItemStartValue == 0.0f) "" else state.glucoseItemStartValue.toString(),
+                        itemEndValue = if (state.glucoseItemEndValue == 0.0f) "" else state.glucoseItemEndValue.toString(),
+                        itemOnUpClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.glucoseItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.glucoseItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, 15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnDownClick = {
+                            if (it == 0) {
+                                var startTime = TimeUtils.parseTime(state.glucoseItemStartTime)
+                                startTime = TimeUtils.addMinutes(startTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseItemStartTimeChange(
+                                        TimeUtils.formatTime(startTime)
+                                    )
+                                )
+                            } else if (it == 1) {
+                                var endTime = TimeUtils.parseTime(state.glucoseItemEndTime)
+                                endTime = TimeUtils.addMinutes(endTime, -15)
+                                eventHandler.invoke(
+                                    ProfileEvent.OnGlucoseItemEndTimeChange(
+                                        TimeUtils.formatTime(endTime)
+                                    )
+                                )
+                            }
+                        },
+                        itemOnGlucoseStartValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnGlucoseItemStartValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        itemOnGlucoseEndValueChange = {
+                            eventHandler.invoke(
+                                ProfileEvent.OnGlucoseItemEndValueChange(
+                                    if (it.isEmpty()) 0.0f else it.toFloatOrNull() ?: 0.0f
+                                )
+                            )
+                        },
+                        isMmolLiter = state.isMmolLiter,
                     )
                 }
             }

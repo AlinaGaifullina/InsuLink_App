@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             InsuLinkAppTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize().imePadding(),
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.primary
                 ) {
                     SetBottomNavigationBar()

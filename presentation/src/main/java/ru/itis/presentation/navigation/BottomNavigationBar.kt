@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -63,7 +62,7 @@ fun BottomNavigationBar(navController: NavController, isBottomBarVisible: Mutabl
             )
             NavigationBar(
                 modifier = Modifier
-                    .height(80.dp),
+                    .height(64.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
             ) {
                 items.forEach { item ->
@@ -79,7 +78,7 @@ fun BottomNavigationBar(navController: NavController, isBottomBarVisible: Mutabl
                             Icon(
                                 painter = painterResource(id = item.icon),
                                 contentDescription = item.title,
-                                modifier = Modifier.size(27.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         },
                         colors = NavigationBarItemDefaults.colors(
@@ -109,15 +108,11 @@ fun BottomNavigationBar(navController: NavController, isBottomBarVisible: Mutabl
 }
 
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SetBottomNavigationBar() {
     val navController = rememberNavController()
     val fabShape = RoundedCornerShape(50)
-    val scope = rememberCoroutineScope()
-
     val isBottomBarVisible = rememberSaveable { (mutableStateOf(true)) }
 
     // BottomBar content:
@@ -127,7 +122,7 @@ fun SetBottomNavigationBar() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(64.dp)
             ) {
                 AnimatedVisibility(
                     visible = isBottomBarVisible.value,
@@ -164,7 +159,12 @@ fun SetBottomNavigationBar() {
         },
         floatingActionButtonPosition = FabPosition.Center,
         content = {
-            RootNavGraph(navController = navController, isBottomBarVisible)
+            Box(
+                modifier = Modifier
+                    .imePadding() // Добавляем отступ только для контента
+            ) {
+                RootNavGraph(navController = navController, isBottomBarVisible)
+            }
         }
     )
 }
