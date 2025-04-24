@@ -23,11 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
-import ru.itis.presentation.components.NumberTextField
+import ru.itis.presentation.components.FloatNumberTextField
 import ru.itis.presentation.components.VerticalArrowButton
 
 @Composable
@@ -42,8 +43,8 @@ fun ExpandableCarbCoefItem(
     onUpItemClick: (Int) -> Unit,
     onDownItemClick: (Int) -> Unit,
     onCarbCoefValueChange: (String) -> Unit,
+    backgroundColor: Color,
 ) {
-//    val measurementUnit = if(is)
     // Opening Animation
     val expandTransition = remember {
         expandVertically(
@@ -72,7 +73,7 @@ fun ExpandableCarbCoefItem(
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(backgroundColor)
                 .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -113,7 +114,7 @@ fun ExpandableCarbCoefItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    NumberTextField(
+                    FloatNumberTextField(
                         modifier = Modifier.width(80.dp),
                         value = itemUnitPerHourValue,
                         onChange = {onCarbCoefValueChange(it)}

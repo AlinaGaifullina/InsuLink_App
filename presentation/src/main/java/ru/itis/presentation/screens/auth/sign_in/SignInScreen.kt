@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import ru.itis.presentation.navigation.BottomNavigationItem
-import ru.itis.presentation.navigation.graphs.AuthScreen
+import ru.itis.presentation.navigation.graphs.AuthNavScreen
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.res.stringResource
@@ -42,7 +42,7 @@ fun SignInScreen(
     LaunchedEffect(action) {
         when (action) {
             SignInSideEffect.NavigateProfile -> navController.navigate(BottomNavigationItem.Profile.graph)
-            SignInSideEffect.NavigateRegister -> navController.navigate(AuthScreen.SignUp.route)
+            SignInSideEffect.NavigateRegister -> navController.navigate(AuthNavScreen.SignUp.route)
             else -> Unit
         }
     }

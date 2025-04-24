@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import ru.itis.presentation.navigation.graphs.AuthScreen
+import ru.itis.presentation.navigation.graphs.AuthNavScreen
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
@@ -43,7 +43,7 @@ fun FillProfileScreen(
 
     LaunchedEffect(action) {
         when (action) {
-            FillProfileSideEffect.NavigateFillHealth -> navController.navigate(AuthScreen.FillHealth.route)
+            FillProfileSideEffect.NavigateFillHealth -> navController.navigate(AuthNavScreen.FillHealth.route)
             else -> Unit
         }
     }

@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
-import ru.itis.presentation.navigation.graphs.AuthScreen
+import ru.itis.presentation.navigation.graphs.AuthNavScreen
 import ru.itis.presentation.components.AuthBottomText
 import ru.itis.presentation.components.AuthPasswordField
 import ru.itis.presentation.components.AuthTextField
@@ -42,7 +42,7 @@ fun SignUpScreen(
 
     LaunchedEffect(action) {
         when (action) {
-            SignUpSideEffect.NavigateGreeting -> navController.navigate(AuthScreen.Greeting.route)
+            SignUpSideEffect.NavigateGreeting -> navController.navigate(AuthNavScreen.Greeting.route)
             SignUpSideEffect.NavigateLogin -> navController.navigateUp()
             else -> Unit
         }

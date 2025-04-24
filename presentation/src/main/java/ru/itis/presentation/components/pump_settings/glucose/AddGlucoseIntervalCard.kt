@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
-import ru.itis.presentation.components.NumberTextField
+import ru.itis.presentation.components.FloatNumberTextField
 import ru.itis.presentation.components.VerticalArrowButton
 
 
@@ -103,7 +103,7 @@ fun AddGlucoseIntervalCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                NumberTextField(
+                FloatNumberTextField(
                     modifier = Modifier.width(100.dp),
                     value = startValue,
                     onChange = {onStartValueChange(it)}
@@ -114,7 +114,7 @@ fun AddGlucoseIntervalCard(
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
-                NumberTextField(
+                FloatNumberTextField(
                     modifier = Modifier.width(100.dp),
                     value = endValue,
                     onChange = {onEndValueChange(it)}

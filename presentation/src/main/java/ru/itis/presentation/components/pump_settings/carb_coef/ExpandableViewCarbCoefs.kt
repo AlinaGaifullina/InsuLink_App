@@ -145,6 +145,7 @@ fun ExpandableViewCarbCoefs(
                     onUpItemClick = itemOnUpClick,
                     onDownItemClick = itemOnDownClick,
                     onCarbCoefValueChange = itemOnCarbCoefValueChange,
+                    backgroundColor = MaterialTheme.colorScheme.primary
                 )
             }
             if(!isAddCardVisible){
@@ -169,7 +170,8 @@ fun ExpandableViewCarbCoefs(
                     onUpClick = newOnUpClick,
                     onDownClick = newOnDownClick,
                     onCarbCoefValueChange = newOnCarbCoefValueChange,
-                    measurementUnit = stringResource(R.string.unit_hour)
+                    measurementUnit = stringResource(R.string.unit_hour),
+                    backgroundColor = MaterialTheme.colorScheme.primary
                 )
             }
         }

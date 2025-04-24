@@ -8,7 +8,9 @@
     <string name="change">Изменить</string>
     <string name="save_and_send">Сохранить изменения и отправить</string>
     <string name="add">Добавить</string>
-    <string name="cancel">Отмена</string>
+    <string name="cancel">Отменить</string>
+    <string name="canceling">Отмена</string>
+    <string name="set">Установить</string>
     <string name="good">Хорошо</string>
     <string name="insulin">Инсулин</string>
 
@@ -63,4 +65,34 @@
 
     <!-- Статистика глюкозы -->
     <string name="glucose_statistics">Статистика глюкозы</string>
+
+    <!-- Базальный -->
+    <string name="basal">Базальный</string>
+    <string name="total_units">Всего единиц:</string>
+    <string name="set_temporary_basal">Установить временный базал</string>
+    <string name="setting_temporary_basal">Установка временного базала</string>
+    <string name="will_set_temporary_basal">Будет установлен временный базал</string>
+    <string name="current_temporary_basal">Сейчас установлен временный базал</string>
+    <string name="for_how_many">на сколько</string>
+    <string name="on">на</string>
+    <string name="minutes_short">мин</string>
+    <string name="minutes_long_plural">минут</string>
+    <string name="minutes_long_singular">минуту</string>
+    <string name="no_continue">Нет, продолжить</string>
+    <string name="yes_cancel">Да, отменить</string>
+    <string name="remaining">осталось:</string>
+
+    <!-- Болюсный -->
+    <string name="calculate">Рассчитать</string>
+    <string name="continue_">Продолжить</string>
+    <string name="continue_injection">Продолжить введение</string>
+    <string name="inject_bolus">Ввести болюс</string>
+    <string name="current_glucose">Текущий сахар</string>
+    <string name="nutrition">Питание</string>
+    <string name="calculation">Расчет</string>
+    <string name="will_inject_bolus">Будет введен болюс</string>
+    <string name="wait_insulin_injection">Подождите, вводится инсулин</string>
+    <string name="process_stopped">Процесс остановлен</string>
+    <string name="stop_insulin_injection_process">Остановить процесс введения инсулина?</string>
+    <string name="inject">Ввести</string>
 </resources>

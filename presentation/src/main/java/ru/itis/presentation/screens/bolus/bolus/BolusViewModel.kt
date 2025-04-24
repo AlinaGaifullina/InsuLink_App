@@ -1,4 +1,4 @@
-package ru.itis.presentation.screens.bolus
+package ru.itis.presentation.screens.bolus.bolus
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,22 +10,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 data class BolusState(
     val userPhone: String = "",
-    val userFirstName: String = "",
-    val userLastName: String = "",
-    val userCity: String? = null,
-    val userCountry: String? = null,
 )
 
 sealed interface BolusEvent {
+    object OnCalculateButtonClick : BolusEvent
+    object OnCancelingButtonClick : BolusEvent
 }
 
 sealed interface BolusSideEffect {
-
+    object NavigateCalculateBolus : BolusSideEffect
+    object NavigateBack : BolusSideEffect
 }
 
 @HiltViewModel
@@ -42,8 +42,16 @@ class BolusViewModel @Inject constructor(
 
     fun event(bolusEvent: BolusEvent) {
         ViewModelProvider.NewInstanceFactory
-//        when (profileEvent) {
-//
-//        }
+        when (bolusEvent) {
+            BolusEvent.OnCalculateButtonClick -> onCalculateButtonClick()
+            BolusEvent.OnCancelingButtonClick -> onCancelingButtonClick()
+        }
+    }
+    private fun onCalculateButtonClick() {
+        viewModelScope.launch { _action.emit(BolusSideEffect.NavigateCalculateBolus) }
+    }
+
+    private fun onCancelingButtonClick() {
+        viewModelScope.launch { _action.emit(BolusSideEffect.NavigateBack) }
     }
 }

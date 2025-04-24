@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 kapt {
@@ -47,6 +48,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("androidx.compose.runtime:runtime-livedata:1.8.0")
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

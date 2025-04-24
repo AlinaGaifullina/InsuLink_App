@@ -28,5 +28,21 @@ class TimeUtils {
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             return sdf.format(time.time)
         }
+
+        fun formatTime(millis: Long): String {
+            val date = Date(millis)
+            val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+            return format.format(date)
+        }
+
+        fun calculateTimerTimes(
+            startTimeMillis: Long,
+            durationHours: Int,
+            durationMinutes: Int
+        ): Pair<String, String> {
+            val durationMillis = (durationHours * 3600L + durationMinutes * 60L) * 1000
+            val endTimeMillis = startTimeMillis + durationMillis
+            return formatTime(startTimeMillis) to formatTime(endTimeMillis)
+        }
     }
 }

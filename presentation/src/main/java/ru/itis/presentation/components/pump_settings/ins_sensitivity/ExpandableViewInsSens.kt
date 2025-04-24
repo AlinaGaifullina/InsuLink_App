@@ -172,7 +172,8 @@ fun ExpandableViewInsSens(
                     onUpClick = newOnUpClick,
                     onDownClick = newOnDownClick,
                     onCarbCoefValueChange = newOnInsSensValueChange,
-                    measurementUnit = measurementUnit
+                    measurementUnit = measurementUnit,
+                    backgroundColor = MaterialTheme.colorScheme.primary
                 )
             }
         }

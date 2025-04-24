@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
-import ru.itis.presentation.navigation.graphs.AuthScreen
+import ru.itis.presentation.navigation.graphs.AuthNavScreen
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
 
 @Composable
@@ -41,7 +41,7 @@ fun GreetingScreen(
     LaunchedEffect(action) {
         when (action) {
             GreetingSideEffect.NavigateProfile -> navController.navigate(ProfileNavScreen.Profile.route)
-            GreetingSideEffect.NavigateFillProfile -> navController.navigate(AuthScreen.FillProfile.route)
+            GreetingSideEffect.NavigateFillProfile -> navController.navigate(AuthNavScreen.FillProfile.route)
             else -> Unit
         }
     }

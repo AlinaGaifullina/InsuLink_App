@@ -54,4 +54,9 @@ val Typography = Typography(
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp
     ),
+    headlineMedium = TextStyle(
+        fontFamily = insulinkFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp
+    ),
 )

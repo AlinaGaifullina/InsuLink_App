@@ -14,39 +14,39 @@ import ru.itis.presentation.screens.auth.sign_up.SignUpScreen
 fun NavGraphBuilder.authNavGraph(navController: NavHostController, isBottomBarVisible: MutableState<Boolean>) {
     navigation(
         route = Graph.AUTHENTICATION,
-        startDestination = AuthScreen.SignIn.route
+        startDestination = AuthNavScreen.SignIn.route
     ) {
-        composable(route = AuthScreen.SignIn.route) {
+        composable(route = AuthNavScreen.SignIn.route) {
             isBottomBarVisible.value = false
             SignInScreen(navController)
         }
-        composable(route = AuthScreen.SignUp.route) {
+        composable(route = AuthNavScreen.SignUp.route) {
             isBottomBarVisible.value = false
             SignUpScreen(navController)
         }
-        composable(route = AuthScreen.Greeting.route) {
+        composable(route = AuthNavScreen.Greeting.route) {
             isBottomBarVisible.value = false
             GreetingScreen(navController)
         }
-        composable(route = AuthScreen.FillProfile.route) {
+        composable(route = AuthNavScreen.FillProfile.route) {
             isBottomBarVisible.value = false
             FillProfileScreen(navController)
         }
-        composable(route = AuthScreen.FillHealth.route) {
+        composable(route = AuthNavScreen.FillHealth.route) {
             isBottomBarVisible.value = false
             FillHealthScreen(navController)
         }
-        composable(route = AuthScreen.Forgot.route) {
+        composable(route = AuthNavScreen.Forgot.route) {
             //TODO
         }
     }
 }
 
-sealed class AuthScreen(val route: String) {
-    object SignIn : AuthScreen(route = "sign_in")
-    object SignUp : AuthScreen(route = "sign_up")
-    object Greeting : AuthScreen(route = "greeting")
-    object FillProfile : AuthScreen(route = "fill_profile")
-    object FillHealth : AuthScreen(route = "fill_health")
-    object Forgot : AuthScreen(route = "forgot") //TODO
+sealed class AuthNavScreen(val route: String) {
+    object SignIn : AuthNavScreen(route = "sign_in")
+    object SignUp : AuthNavScreen(route = "sign_up")
+    object Greeting : AuthNavScreen(route = "greeting")
+    object FillProfile : AuthNavScreen(route = "fill_profile")
+    object FillHealth : AuthNavScreen(route = "fill_health")
+    object Forgot : AuthNavScreen(route = "forgot") //TODO
 }

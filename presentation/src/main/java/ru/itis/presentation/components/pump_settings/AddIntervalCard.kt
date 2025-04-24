@@ -20,12 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
-import ru.itis.presentation.components.NumberTextField
+import ru.itis.presentation.components.FloatNumberTextField
 import ru.itis.presentation.components.VerticalArrowButton
 
 @Composable
@@ -39,13 +40,14 @@ fun AddIntervalCard(
     onCarbCoefValueChange: (String) -> Unit,
     onAddClick: () -> Unit,
     measurementUnit: String,
+    backgroundColor: Color
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -100,7 +102,7 @@ fun AddIntervalCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                NumberTextField(
+                FloatNumberTextField(
                     modifier = Modifier.width(100.dp),
                     value = unitPerHourValue,
                     onChange = {onCarbCoefValueChange(it)}
