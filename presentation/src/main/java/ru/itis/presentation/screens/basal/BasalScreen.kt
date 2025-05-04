@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,11 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +47,7 @@ import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
+import ru.itis.presentation.components.FloatNumberTextField
 import ru.itis.presentation.components.TimerRangeDisplay
 import ru.itis.presentation.components.pump_settings.AddIntervalCard
 import ru.itis.presentation.components.pump_settings.carb_coef.ExpandableCarbCoefItem
@@ -59,13 +65,17 @@ fun BasalScreen(
 
     var isAddCardVisible by remember { mutableStateOf(false) }
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primary)
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 60.dp),
+            .padding(start = 20.dp, end = 20.dp)
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = stringResource(R.string.basal),
             style = MaterialTheme.typography.titleMedium,
@@ -185,7 +195,9 @@ fun BasalScreen(
                                     imeAction = ImeAction.Done,
                                 ),
                                 singleLine = true,
-                                textStyle = MaterialTheme.typography.headlineMedium,
+                                textStyle = MaterialTheme.typography.headlineMedium.copy(
+                                    textAlign = TextAlign.Center
+                                ),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
@@ -209,6 +221,29 @@ fun BasalScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onTertiary
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalArrowTimeButton(
+                            onLeftClick = {
+
+                            },
+                            onRightClick = {
+
+                            },
+                            onHourTextValueChange = {
+                                eventHandler.invoke(BasalEvent.OnHourValueChange(
+                                    if(it == "") 0 else it.toInt())
+                                )
+                            },
+                            onMinuteTextValueChange = {
+                                eventHandler.invoke(BasalEvent.OnMinuteValueChange(
+                                    if(it == "") 0 else it.toInt())
+                                )
+                            },
+                            hourTextValue = state.hourValue,
+                            minuteTextValue = state.minuteValue,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         BaseButton(
                             onClick = {
 
@@ -223,7 +258,7 @@ fun BasalScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.total_units) + " " + state.listOfBasal.sumOf { it.value.toDouble() }.toString(),
             color = MaterialTheme.colorScheme.onPrimary,
@@ -396,6 +431,7 @@ fun BasalScreen(
                 backgroundColor = MaterialTheme.colorScheme.secondaryContainer
             )
         }
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 
@@ -407,4 +443,125 @@ fun SetTemporaryBasal(){
 @Composable
 fun CurrentTemporaryBasal(){
 
+}
+
+@Composable
+fun HorizontalArrowTimeButton(
+    onLeftClick: () -> Unit,
+    onRightClick: () -> Unit,
+    onHourTextValueChange: (String) -> Unit,
+    onMinuteTextValueChange: (String) -> Unit,
+    hourTextValue: Int,
+    minuteTextValue: Int,
+    modifier: Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Top
+    ) {
+        ElevatedButton(
+            modifier = Modifier,
+            shape = RoundedCornerShape(12.dp),
+            onClick = onLeftClick,
+            elevation = ButtonDefaults.elevatedButtonElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 4.dp / 2
+            ),
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+            ),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_arrow_left),
+                contentDescription = "icon_edit",
+                modifier = Modifier
+                    .size(22.dp),
+                MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        TimeTextField(
+            value = hourTextValue,
+            onValueChange = onHourTextValueChange,
+            text = "ч",
+            maxValue = 24
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        TimeTextField(
+            value = minuteTextValue,
+            onValueChange = onMinuteTextValueChange,
+            text = "мин",
+            maxValue = 59
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ElevatedButton(
+            modifier = Modifier,
+            shape = RoundedCornerShape(12.dp),
+            onClick = onRightClick,
+            elevation = ButtonDefaults.elevatedButtonElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 4.dp / 2
+            ),
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+            ),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_arrow_right),
+                contentDescription = "icon_edit",
+                modifier = Modifier
+                    .size(22.dp),
+                MaterialTheme.colorScheme.onPrimary
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeTextField(
+    value: Int,
+    onValueChange: (String) -> Unit,
+    text: String,
+    maxValue: Int
+){
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = if(value == 0) "" else value.toString(),
+            onValueChange = { newValue ->
+                if ((newValue.length <= 2) && (newValue.isEmpty() || newValue.toIntOrNull()?.let { it in 0..maxValue } == true)) {
+                    onValueChange(newValue)
+                }
+            },
+            modifier = Modifier.width(80.dp),
+            shape = RoundedCornerShape(8.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done,
+            ),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                textAlign = TextAlign.Center
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                focusedContainerColor = MaterialTheme.colorScheme.primary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.primary
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            modifier = Modifier,
+            text = text,
+            color = MaterialTheme.colorScheme.onTertiary,
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
 }

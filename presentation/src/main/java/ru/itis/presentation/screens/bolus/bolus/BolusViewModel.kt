@@ -15,12 +15,18 @@ import javax.inject.Inject
 
 
 data class BolusState(
-    val userPhone: String = "",
+    val isBreadUnits: Boolean = true,
+    val isMmolLiter: Boolean = true,
+    val nutritionValue: Float = 2.0f,
+    val glucoseValue: Float = 5.6f,
+
 )
 
 sealed interface BolusEvent {
     object OnCalculateButtonClick : BolusEvent
     object OnCancelingButtonClick : BolusEvent
+    data class OnNutritionValueChange(val value: Float) : BolusEvent
+    data class OnGlucoseValueChange(val value: Float) : BolusEvent
 }
 
 sealed interface BolusSideEffect {
@@ -45,8 +51,19 @@ class BolusViewModel @Inject constructor(
         when (bolusEvent) {
             BolusEvent.OnCalculateButtonClick -> onCalculateButtonClick()
             BolusEvent.OnCancelingButtonClick -> onCancelingButtonClick()
+            is BolusEvent.OnGlucoseValueChange -> onGlucoseValueChange(bolusEvent.value)
+            is BolusEvent.OnNutritionValueChange -> onNutritionValueChange(bolusEvent.value)
         }
     }
+
+    private fun onGlucoseValueChange(glucoseValue: Float) {
+        _state.tryEmit(_state.value.copy(glucoseValue = glucoseValue))
+    }
+
+    private fun onNutritionValueChange(nutritionValue: Float) {
+        _state.tryEmit(_state.value.copy(nutritionValue = nutritionValue))
+    }
+
     private fun onCalculateButtonClick() {
         viewModelScope.launch { _action.emit(BolusSideEffect.NavigateCalculateBolus) }
     }

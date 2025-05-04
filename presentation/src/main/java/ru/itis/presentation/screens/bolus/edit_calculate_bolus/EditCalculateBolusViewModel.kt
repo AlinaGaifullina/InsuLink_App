@@ -15,13 +15,14 @@ import javax.inject.Inject
 
 
 data class EditCalculateBolusState(
-    val userPhone: String = "",
+    val bolusValue: Float = 0.0f,
 )
 
 sealed interface EditCalculateBolusEvent {
     object OnInjectButtonClick : EditCalculateBolusEvent
     object OnCancelingButtonClick : EditCalculateBolusEvent
     object OnBackButtonClick : EditCalculateBolusEvent
+    data class OnBolusValueChange(val value: Float) : EditCalculateBolusEvent
 }
 
 sealed interface EditCalculateBolusSideEffect {
@@ -48,6 +49,7 @@ class EditCalculateBolusViewModel @Inject constructor(
             EditCalculateBolusEvent.OnInjectButtonClick -> onInjectButtonClick()
             EditCalculateBolusEvent.OnCancelingButtonClick -> onCancelingButtonClick()
             EditCalculateBolusEvent.OnBackButtonClick -> onBackButtonClick()
+            is EditCalculateBolusEvent.OnBolusValueChange -> onBolusValueChange(editCalculateBolusEvent.value)
         }
     }
     private fun onInjectButtonClick() {
@@ -59,5 +61,9 @@ class EditCalculateBolusViewModel @Inject constructor(
     }
     private fun onBackButtonClick() {
         viewModelScope.launch { _action.emit(EditCalculateBolusSideEffect.NavigateBack) }
+    }
+
+    private fun onBolusValueChange(bolusValue: Float) {
+        _state.tryEmit(_state.value.copy(bolusValue = bolusValue))
     }
 }

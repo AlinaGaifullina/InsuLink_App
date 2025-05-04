@@ -11,24 +11,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+
 
 @Composable
 fun FloatNumberTextField(modifier: Modifier, value: String, onChange: (String) -> Unit) {
     Column {
-        val numberRegex = remember { "[\\d]*[.]?[\\d]*".toRegex() }
+        val numberRegex = remember { Regex("^\\d*[.,]?\\d*$") }  // Разрешаем и точку, и запятую
 
         OutlinedTextField(
-            value = if (value == "0.0") "" else value, // Показываем пустую строку вместо 0.0
+            value = value.replace(",", "."),  // Всегда используем точку для отображения
             onValueChange = { newValue ->
                 when {
-                    newValue.isEmpty() -> onChange("") // Разрешаем пустую строку
+                    newValue.isEmpty() -> onChange("")
                     numberRegex.matches(newValue) -> {
-                        // Удаляем ведущие нули, кроме случая перед точкой
-                        val processedValue = if (newValue.startsWith("0") && !newValue.startsWith("0.")) {
-                            newValue.dropWhile { it == '0' }.ifEmpty { "0" }
-                        } else {
-                            newValue
+                        val processedValue = when {
+                            newValue == "." || newValue == "," -> "0."
+                            newValue.startsWith("0") && newValue.length > 1 &&
+                                    !newValue.startsWith("0.") && !newValue.startsWith("0,") ->
+                                newValue.drop(1).takeIf { it.isNotEmpty() } ?: "0"
+                            else -> newValue.replace(",", ".")
                         }
                         onChange(processedValue)
                     }
@@ -41,7 +44,9 @@ fun FloatNumberTextField(modifier: Modifier, value: String, onChange: (String) -
                 imeAction = ImeAction.Done,
             ),
             singleLine = true,
-            textStyle = MaterialTheme.typography.labelLarge,
+            textStyle = MaterialTheme.typography.labelLarge.copy(
+                textAlign = TextAlign.Center
+            ),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
                 unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),

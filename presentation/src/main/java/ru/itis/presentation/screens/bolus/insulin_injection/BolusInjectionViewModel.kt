@@ -15,7 +15,8 @@ import javax.inject.Inject
 
 
 data class BolusInjectionState(
-    val userPhone: String = "",
+    val isProcessActive: Boolean = true,
+    val bolusValue: Float = 0.0f,
 )
 
 sealed interface BolusInjectionEvent {
@@ -58,10 +59,11 @@ class BolusInjectionViewModel @Inject constructor(
     private fun onStopButtonClick() {
 
     }
+
     private fun onContinueInjectModalButtonClick() {
 
     }
     private fun onStopModalButtonClick() {
-
+        _state.tryEmit(_state.value.copy(isProcessActive = !_state.value.isProcessActive))
     }
 }

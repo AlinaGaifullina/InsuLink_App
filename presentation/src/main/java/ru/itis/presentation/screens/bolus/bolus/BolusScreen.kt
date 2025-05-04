@@ -1,8 +1,10 @@
 package ru.itis.presentation.screens.bolus.bolus
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
+import ru.itis.presentation.components.HorizontalArrowButton
 import ru.itis.presentation.navigation.graphs.BolusNavScreen
 
 
@@ -47,6 +50,7 @@ fun BolusScreen(
     }
 
     val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,15 +61,97 @@ fun BolusScreen(
                     end = Offset.Infinite
                 )
             )
-            .verticalScroll(scrollState),
+            .verticalScroll(scrollState)
+            .padding(top = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "Bolus",
-            modifier = Modifier
-                .fillMaxWidth()
+            text = stringResource(R.string.inject_bolus),
+            modifier = Modifier,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSecondary
         )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.current_glucose),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSecondary,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalArrowButton(
+                onRightClick = {
+                    val currentValue = state.glucoseValue
+                    val newValue = (currentValue + 0.1f).coerceAtMost(50.0f)
+                    val roundedValue = "%.1f".format(newValue).toFloatSafe()
+                    eventHandler.invoke(BolusEvent.OnGlucoseValueChange(roundedValue))
+                },
+                onLeftClick = {
+                    val currentValue = state.glucoseValue
+                    val newValue = (currentValue - 0.1f).coerceAtLeast(0.0f)
+                    val roundedValue = "%.1f".format(newValue).toFloatSafe()
+                    eventHandler.invoke(BolusEvent.OnGlucoseValueChange(roundedValue))
+                },
+                onTextValueChange = { newValue ->
+                    val floatValue = when {
+                        newValue.isEmpty() -> 0.0f
+                        else -> newValue.toFloatSafe()
+                    }
+                    eventHandler.invoke(BolusEvent.OnGlucoseValueChange(floatValue))
+                },
+                textValue = when {
+                    state.glucoseValue == 0.0f -> ""
+                    else -> "%.1f".format(state.glucoseValue).replace(",", ".")
+                },
+                modifier = Modifier
+            )
+            Text(
+                text = if(state.isMmolLiter) stringResource(R.string.mmol_l_long) else stringResource(R.string.mg_dl),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+            Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                text = stringResource(R.string.nutrition),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSecondary
+                )
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalArrowButton(
+                onRightClick = {
+                    val currentValue = state.nutritionValue
+                    val newValue = (currentValue + 0.1f).coerceAtMost(50.0f)
+                    val roundedValue = "%.1f".format(newValue).toFloatSafe()
+                    eventHandler.invoke(BolusEvent.OnNutritionValueChange(roundedValue))
+                },
+                onLeftClick = {
+                    val currentValue = state.nutritionValue
+                    val newValue = (currentValue - 0.1f).coerceAtLeast(0.0f)
+                    val roundedValue = "%.1f".format(newValue).toFloatSafe()
+                    eventHandler.invoke(BolusEvent.OnNutritionValueChange(roundedValue))
+                },
+                onTextValueChange = { newValue ->
+                    val floatValue = when {
+                        newValue.isEmpty() -> 0.0f
+                        else -> newValue.toFloatSafe()
+                    }
+                    eventHandler.invoke(BolusEvent.OnNutritionValueChange(floatValue))
+                },
+                textValue = when {
+                    state.nutritionValue == 0.0f -> ""
+                    else -> "%.1f".format(state.nutritionValue).replace(",", ".")
+                },
+                modifier = Modifier
+            )
+            Text(
+                text = if(state.isBreadUnits) stringResource(R.string.bread_unit) else stringResource(R.string.carbohydrates_measurement_unit),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,4 +183,8 @@ fun BolusScreen(
             )
         }
     }
+}
+
+fun String.toFloatSafe(): Float {
+    return this.replace(",", ".").toFloatOrNull() ?: 0f
 }

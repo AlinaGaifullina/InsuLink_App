@@ -11,6 +11,7 @@
     <string name="cancel">Отменить</string>
     <string name="canceling">Отмена</string>
     <string name="set">Установить</string>
+    <string name="stop">Остановить</string>
     <string name="good">Хорошо</string>
     <string name="insulin">Инсулин</string>
 
@@ -90,9 +91,14 @@
     <string name="current_glucose">Текущий сахар</string>
     <string name="nutrition">Питание</string>
     <string name="calculation">Расчет</string>
+    <string name="food_intake">Прием пищи</string>
+    <string name="active_insulin">Активный инсулин</string>
     <string name="will_inject_bolus">Будет введен болюс</string>
     <string name="wait_insulin_injection">Подождите, вводится инсулин</string>
     <string name="process_stopped">Процесс остановлен</string>
     <string name="stop_insulin_injection_process">Остановить процесс введения инсулина?</string>
     <string name="inject">Ввести</string>
+    <string name="total">Итого</string>
+    <string name="inject_specified_amount">Ввести указанное количество?</string>
+
 </resources>

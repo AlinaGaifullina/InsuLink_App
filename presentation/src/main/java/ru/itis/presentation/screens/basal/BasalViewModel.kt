@@ -25,6 +25,8 @@ data class BasalState(
     val timerRemainingMillis: Long = 0, // Оставшееся время в миллисекундах
     val timerStartTime: Long? = null,  // Время старта таймера (System.currentTimeMillis())
     val isTimerRunning: Boolean = false,
+    val hourValue: Int = 0,
+    val minuteValue: Int = 15,
 
 
     //Basal
@@ -45,6 +47,8 @@ data class BasalState(
 )
 
 sealed interface BasalEvent {
+    data class OnHourValueChange(val value: Int) : BasalEvent
+    data class OnMinuteValueChange(val value: Int) : BasalEvent
     data class OnNewBasalChange(val value: Int) : BasalEvent
     data class OnBasalExpandedItemChange(val value: Int) : BasalEvent
     data class OnBasalNewValueChange(val value: Float) : BasalEvent
@@ -100,6 +104,8 @@ class BasalViewModel @Inject constructor(
     fun event(basalEvent: BasalEvent) {
         ViewModelProvider.NewInstanceFactory
         when (basalEvent) {
+            is BasalEvent.OnHourValueChange -> onHourValueChange(basalEvent.value)
+            is BasalEvent.OnMinuteValueChange -> onMinuteValueChange(basalEvent.value)
             is BasalEvent.OnNewBasalChange -> onNewBasalChange(basalEvent.value)
             is BasalEvent.OnBasalExpandedItemChange -> onBasalExpandedItemChange(basalEvent.value)
             is BasalEvent.OnBasalNewValueChange -> onBasalNewValueChange(basalEvent.value)
@@ -138,6 +144,14 @@ class BasalViewModel @Inject constructor(
 
     private fun onNewBasalChange(value: Int) {
         _state.tryEmit(_state.value.copy(newTemporaryBasal = value))
+    }
+
+    private fun onHourValueChange(hourValue: Int) {
+        _state.tryEmit(_state.value.copy(hourValue = hourValue))
+    }
+
+    private fun onMinuteValueChange(minuteValue: Int) {
+        _state.tryEmit(_state.value.copy(minuteValue = minuteValue))
     }
 
     private fun startTimerInternal() {
