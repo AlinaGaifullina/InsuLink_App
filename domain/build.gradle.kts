@@ -49,6 +49,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("androidx.compose.runtime:runtime-livedata:1.8.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.6")
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

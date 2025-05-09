@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import ru.itis.domain.model.CarbCoef
 import ru.itis.domain.model.InsulinSensitivity
 import ru.itis.domain.model.TargetGlucose
+import ru.itis.domain.usecase.datastore.GetUserIdFromDataStoreUseCase
 import javax.inject.Inject
 
 
@@ -32,14 +33,15 @@ data class ProfileState(
     val pumpName: String = "",
     val isPumpConnected: Boolean = false,
     val activeInsulinTime: Float = 0.0f,
+
     // Carb
     val listOfCarbCoefs: List<CarbCoef> = listOf(
-        CarbCoef("1","00:00","04:00",2.0f),
-        CarbCoef("1","00:00","04:00",2.0f),
-        CarbCoef("1","00:00","04:00",2.0f),
-        CarbCoef("1","00:00","04:00",2.0f),
-        CarbCoef("1","00:00","04:00",2.0f),
-        CarbCoef("1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
+        CarbCoef("1", "1","00:00","04:00",2.0f),
     ),
     val isCarbCoefExpanded: Boolean = false,
     val carbCoefExpandedItemIndex: Int? = null,
@@ -49,14 +51,15 @@ data class ProfileState(
     val carbCoefItemStartTime: String = "00:00",
     val carbCoefItemEndTime: String = "03:00",
     val carbCoefItemValue: Float = 0.0f,
+
     // Sensitivity
     val listOfInsSens: List<InsulinSensitivity> = listOf(
-        InsulinSensitivity("1","00:00","05:00",2.0f),
-        InsulinSensitivity("1","00:00","05:00",2.0f),
-        InsulinSensitivity("1","00:00","05:00",2.0f),
-        InsulinSensitivity("1","00:00","05:00",2.0f),
-        InsulinSensitivity("1","00:00","05:00",2.0f),
-        InsulinSensitivity("1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
+        InsulinSensitivity("1", "1","00:00","05:00",2.0f),
     ),
     val isInsSensExpanded: Boolean = false,
     val insSensExpandedItemIndex: Int? = null,
@@ -66,13 +69,14 @@ data class ProfileState(
     val insSensItemStartTime: String = "00:00",
     val insSensItemEndTime: String = "03:00",
     val insSensItemValue: Float = 0.0f,
+
     // Glucose
     val listOfGlucose: List<TargetGlucose> = listOf(
-        TargetGlucose("1","00:00","05:00",2.0f, 5.0f),
-        TargetGlucose("1","00:00","05:00",2.0f, 5.0f),
-        TargetGlucose("1","00:00","05:00",2.0f, 5.0f),
-        TargetGlucose("1","00:00","05:00",2.0f, 5.0f),
-        TargetGlucose("1","00:00","05:00",2.0f, 5.0f),
+        TargetGlucose("1", "1","00:00","05:00",2.0f, 5.0f),
+        TargetGlucose("1", "1","00:00","05:00",2.0f, 5.0f),
+        TargetGlucose("1", "1","00:00","05:00",2.0f, 5.0f),
+        TargetGlucose("1", "1","00:00","05:00",2.0f, 5.0f),
+        TargetGlucose("1", "1","00:00","05:00",2.0f, 5.0f),
     ),
     val isGlucoseExpanded: Boolean = false,
     val glucoseExpandedItemIndex: Int? = null,
@@ -141,6 +145,7 @@ sealed interface ProfileSideEffect {
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val getUserIdFromDataStoreUseCase: GetUserIdFromDataStoreUseCase,
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<ProfileState> = MutableStateFlow(ProfileState())
@@ -149,6 +154,38 @@ class ProfileViewModel @Inject constructor(
     private val _action = MutableSharedFlow<ProfileSideEffect?>()
     val action: SharedFlow<ProfileSideEffect?>
         get() = _action.asSharedFlow()
+
+    init {
+        loadUserData()
+    }
+
+    private fun loadUserData() {
+        viewModelScope.launch {
+            try {
+                // 1. Получаем ID через UseCase
+                val userId = getUserIdFromDataStoreUseCase()
+                    ?: throw IllegalStateException("User not authenticated")
+
+                // 2. Загружаем данные пользователя
+//                val userData = getUserDataUseCase(userId)
+//
+//                _state.update {
+//                    it.copy(
+//                        isLoading = false,
+//                        userData = userData
+//                    )
+//                }
+
+            } catch (e: Exception) {
+//                _state.update {
+//                    it.copy(
+//                        isLoading = false,
+//                        error = e.message
+//                    )
+//                }
+            }
+        }
+    }
 
     fun event(profileEvent: ProfileEvent) {
         ViewModelProvider.NewInstanceFactory
@@ -293,6 +330,7 @@ class ProfileViewModel @Inject constructor(
         newListOfCarbCoef.add(
             CarbCoef(
                 id = "",
+                userId = "1",
                 startTime = _state.value.carbCoefNewStartTime,
                 endTime = _state.value.carbCoefNewEndTime,
                 coef = _state.value.carbCoefNewValue
@@ -391,6 +429,7 @@ class ProfileViewModel @Inject constructor(
         newListOfInsSens.add(
             InsulinSensitivity(
                 id = "",
+                userId = "1",
                 startTime = _state.value.insSensNewStartTime,
                 endTime = _state.value.insSensNewEndTime,
                 value = _state.value.insSensNewValue
@@ -498,6 +537,7 @@ class ProfileViewModel @Inject constructor(
         newListOfGlucose.add(
             TargetGlucose(
                 id = "",
+                userId = "1",
                 startTime = _state.value.glucoseNewStartTime,
                 endTime = _state.value.glucoseNewEndTime,
                 startValue = _state.value.glucoseNewStartValue,

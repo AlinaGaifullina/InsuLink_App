@@ -1,15 +1,13 @@
 package ru.itis.domain.model
 
 data class User(
-
+    val id: String,
     val firstName: String,
     val lastName: String,
     val patronymic: String,
-    val phoneNumber: String,
-    val password: String,
-    val country: String,
-    val city: String,
-    val cartId: Int,
-    val ordersId: List<Int>,
-    val creationDate: String,
+    val gender: String,
+    val birthDate: String,
+    val height: Float,
+    val weight: Float,
+    val insulin: String,
 )

@@ -31,11 +31,11 @@ data class BasalState(
 
     //Basal
     val listOfBasal: List<Basal> = listOf(
-        Basal("1","00:00","04:00",2.0f),
-        Basal("1","00:00","04:00",2.0f),
-        Basal("1","00:00","04:00",2.0f),
-        Basal("1","00:00","04:00",2.0f),
-        Basal("1","00:00","04:00",2.0f),
+        Basal("1", "1","00:00","04:00",2.0f),
+        Basal("1", "1","00:00","04:00",2.0f),
+        Basal("1", "1","00:00","04:00",2.0f),
+        Basal("1", "1","00:00","04:00",2.0f),
+        Basal("1", "1","00:00","04:00",2.0f),
     ),
     val basalExpandedItemIndex: Int? = null,
     val basalNewStartTime: String = "00:00",
@@ -262,6 +262,7 @@ class BasalViewModel @Inject constructor(
         newListOfCarbCoef.add(
             Basal(
                 id = "",
+                userId = "1",
                 startTime = _state.value.basalNewStartTime,
                 endTime = _state.value.basalNewEndTime,
                 value = _state.value.basalNewValue

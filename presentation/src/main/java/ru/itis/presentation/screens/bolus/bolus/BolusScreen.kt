@@ -43,7 +43,10 @@ fun BolusScreen(
 
     LaunchedEffect(action) {
         when (action) {
-            BolusSideEffect.NavigateCalculateBolus -> navController.navigate(BolusNavScreen.CalculateBolus.route)
+            BolusSideEffect.NavigateCalculateBolus -> navController.navigate(BolusNavScreen.CalculateBolus.createRoute(
+                nutritionValue = state.nutritionValue,
+                glucoseValue = state.glucoseValue
+            ))
             BolusSideEffect.NavigateBack -> navController.navigateUp()
             else -> Unit
         }

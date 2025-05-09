@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import ru.itis.domain.model.Pump
+import ru.itis.domain.usecase.SaveLocalPumpUseCase
+import ru.itis.domain.usecase.datastore.SavePumpIdInDataStoreUseCase
+import ru.itis.domain.usecase.datastore.SaveUserIdInDataStoreUseCase
 
 
 data class SignInState(
@@ -38,7 +42,9 @@ sealed interface SignInEvent {
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-
+    private val saveUserIdInDataStoreUseCase: SaveUserIdInDataStoreUseCase,
+    private val savePumpIdInDataStoreUseCase: SavePumpIdInDataStoreUseCase,
+    private val saveLocalPumpUseCase: SaveLocalPumpUseCase,
 ) : ViewModel(){
     private val _state: MutableStateFlow<SignInState> = MutableStateFlow(SignInState())
     val state: StateFlow<SignInState> = _state
@@ -70,11 +76,29 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun onRegisterButtonCLick() {
-        viewModelScope.launch { _action.emit(SignInSideEffect.NavigateRegister) }
+        viewModelScope.launch {
+            saveUserIdInDataStoreUseCase("1")
+            _action.emit(SignInSideEffect.NavigateRegister
+            )
+        }
     }
 
     private fun onLoginButtonClick() {
-        viewModelScope.launch { _action.emit(SignInSideEffect.NavigateProfile) }
+        viewModelScope.launch {
+            saveUserIdInDataStoreUseCase("1")
+            savePumpIdInDataStoreUseCase("1")
+            saveLocalPumpUseCase(
+                Pump(
+                    id = "1",
+                    deviceId = "123",
+                    carbMeasurementUnit = "1",
+                    glucoseMeasurementUnit = "1",
+                    insulinActiveTime = 2.0f,
+                    userId = "1"
+                )
+            )
+            _action.emit(SignInSideEffect.NavigateProfile)
+        }
     }
 
 //

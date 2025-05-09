@@ -15,7 +15,12 @@ import javax.inject.Inject
 
 
 data class CalculateBolusState(
-    val userPhone: String = "",
+    val nutritionValue: Float = 2.0f, // съеденная еда
+    val glucoseValue: Float = 5.6f, // текущий сахар
+    val insulinForNutrition: Float = 0.0f, // инсулин на еду
+    val insulinForCorrection: Float = 0.0f, // инсулин на коррекцию
+    val activeInsulin: Float = 0.0f, // активный инсулин
+    val bolusValue: Float = 0.0f, // итоговая дозировка инсулина
 )
 
 sealed interface CalculateBolusEvent {
@@ -35,7 +40,15 @@ class CalculateBolusViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<CalculateBolusState> = MutableStateFlow(CalculateBolusState())
+    private val initialNutritionValue = savedStateHandle.get<Float>("nutritionValue") ?: 0f
+    private val initialGlucoseValue = savedStateHandle.get<Float>("glucoseValue") ?: 0f
+
+    private val _state: MutableStateFlow<CalculateBolusState> = MutableStateFlow(
+        CalculateBolusState(
+            nutritionValue = initialNutritionValue,
+            glucoseValue = initialGlucoseValue
+        )
+    )
     val state: StateFlow<CalculateBolusState> = _state
 
     private val _action = MutableSharedFlow<CalculateBolusSideEffect?>()

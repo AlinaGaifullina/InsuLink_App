@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
+import ru.itis.presentation.navigation.BottomNavigationItem
 
 
 @Composable
@@ -51,6 +53,12 @@ fun BolusInjectionScreen(
     val scrollState = rememberScrollState()
     var showDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(action) {
+        when (action) {
+            BolusInjectionSideEffect.NavigateProfile -> navController.navigate(BottomNavigationItem.Profile.graph)
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier

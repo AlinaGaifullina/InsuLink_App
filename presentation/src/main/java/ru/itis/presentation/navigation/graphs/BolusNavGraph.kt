@@ -3,7 +3,9 @@ package ru.itis.presentation.navigation.graphs
 import androidx.compose.runtime.MutableState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import ru.itis.presentation.screens.bolus.bolus.BolusScreen
 import ru.itis.presentation.screens.bolus.calculate_bolus.CalculateBolusScreen
@@ -20,9 +22,23 @@ fun NavGraphBuilder.bolusNavGraph(navController: NavHostController, isBottomBarV
             isBottomBarVisible.value = false
             BolusScreen(navController)
         }
-        composable(route = BolusNavScreen.CalculateBolus.route) {
+        composable(
+            route = BolusNavScreen.CalculateBolus.route,
+            arguments = listOf(
+                navArgument("nutritionValue") {
+                    type = NavType.FloatType
+                    defaultValue = 0f
+                },
+                navArgument("glucoseValue") {
+                    type = NavType.FloatType
+                    defaultValue = 0f
+                }
+            )
+        ) { backStackEntry ->
             isBottomBarVisible.value = false
-            CalculateBolusScreen(navController)
+            CalculateBolusScreen(
+                navController = navController
+            )
         }
         composable(route = BolusNavScreen.EditCalculateBolus.route) {
             isBottomBarVisible.value = false
@@ -37,7 +53,14 @@ fun NavGraphBuilder.bolusNavGraph(navController: NavHostController, isBottomBarV
 
 sealed class BolusNavScreen(val route: String) {
     object Bolus : BolusNavScreen(route = "bolus")
-    object CalculateBolus : BolusNavScreen(route = "calculate_bolus")
+    object CalculateBolus : BolusNavScreen(
+        route = "calculate_bolus?nutritionValue={nutritionValue}&glucoseValue={glucoseValue}"
+    ) {
+        fun createRoute(
+            nutritionValue: Float,
+            glucoseValue: Float
+        ) = "calculate_bolus?nutritionValue=$nutritionValue&glucoseValue=$glucoseValue"
+    }
     object EditCalculateBolus : AuthNavScreen(route = "edit_calculate_bolus")
     object BolusInjection : AuthNavScreen(route = "bolus_injection")
 }
