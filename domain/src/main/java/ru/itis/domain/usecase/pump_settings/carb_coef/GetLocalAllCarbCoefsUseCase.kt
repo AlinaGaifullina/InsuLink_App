@@ -1,4 +1,4 @@
-package ru.itis.domain.usecase
+package ru.itis.domain.usecase.pump_settings.carb_coef
 
 import ru.itis.domain.model.CarbCoef
 import ru.itis.domain.repository.CarbCoefRepository

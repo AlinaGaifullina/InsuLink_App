@@ -18,10 +18,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FloatNumberTextField(modifier: Modifier, value: String, onChange: (String) -> Unit) {
     Column {
-        val numberRegex = remember { Regex("^\\d*[.,]?\\d*$") }  // Разрешаем и точку, и запятую
+        val numberRegex = remember { Regex("^\\d*[.,]?\\d*$") }
 
         OutlinedTextField(
-            value = value.replace(",", "."),  // Всегда используем точку для отображения
+            value = value.replace(",", "."),  // используем точку для отображения
             onValueChange = { newValue ->
                 when {
                     newValue.isEmpty() -> onChange("")
@@ -44,7 +44,7 @@ fun FloatNumberTextField(modifier: Modifier, value: String, onChange: (String) -
                 imeAction = ImeAction.Done,
             ),
             singleLine = true,
-            textStyle = MaterialTheme.typography.labelLarge.copy(
+            textStyle = MaterialTheme.typography.headlineSmall.copy(
                 textAlign = TextAlign.Center
             ),
             colors = OutlinedTextFieldDefaults.colors(

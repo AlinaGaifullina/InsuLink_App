@@ -14,6 +14,7 @@ import ru.itis.data.dao.InsulinSensitivityDao
 import ru.itis.data.dao.PumpDao
 import ru.itis.data.dao.TargetGlucoseDao
 import ru.itis.data.dao.UserDao
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,4 +48,8 @@ object DatabaseModule {
 
     @Provides
     fun providePumpDao(db: AppDatabase): PumpDao = db.pumpDao()
+
+    @Provides
+    @Singleton
+    fun provideFakeKey(): ByteArray = "test_key_1234567890".toByteArray()
 }

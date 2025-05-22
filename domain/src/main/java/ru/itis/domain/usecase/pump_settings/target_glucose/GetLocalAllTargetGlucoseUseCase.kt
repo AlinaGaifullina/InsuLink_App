@@ -1,4 +1,4 @@
-package ru.itis.domain.usecase
+package ru.itis.domain.usecase.pump_settings.target_glucose
 
 import android.util.Log
 import ru.itis.domain.model.TargetGlucose
@@ -11,7 +11,7 @@ class GetLocalAllTargetGlucoseUseCase @Inject constructor(
 
     suspend operator fun invoke(): List<TargetGlucose> {
         return try {
-            repository.getAllTargets()
+            repository.getAllGlucose()
         } catch (e: Exception) {
             Log.e("GetTargets", "Loading failed", e)
             emptyList()

@@ -1,7 +1,13 @@
-package ru.itis.presentation.screens.profile
+package ru.itis.presentation.screens.profile.profile
 
+import android.app.Activity
+import android.bluetooth.BluetoothDevice
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,47 +17,90 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.delay
 import ru.itis.presentation.R
 import ru.itis.presentation.components.BaseButton
 import ru.itis.presentation.components.DropdownTextField
+import ru.itis.presentation.components.RequestBluetoothPermissions
 import ru.itis.presentation.components.pump_settings.HeaderView
 import ru.itis.presentation.components.SwitchButton
 import ru.itis.presentation.components.pump_settings.carb_coef.ExpandableViewCarbCoefs
 import ru.itis.presentation.components.pump_settings.glucose.ExpandableViewGlucose
 import ru.itis.presentation.components.pump_settings.ins_sensitivity.ExpandableViewInsSens
+import ru.itis.presentation.navigation.graphs.AuthNavScreen
+import ru.itis.presentation.navigation.graphs.BolusNavScreen
 import ru.itis.presentation.navigation.graphs.bottom_bar.ProfileNavScreen
 import ru.itis.presentation.utils.InsulinRepository
 import ru.itis.presentation.utils.TimeUtils
 
+@Composable
+fun BluetoothDataDisplay(data: String, isVisible: Boolean) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically()
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Text(
+                text = data,
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
 
 @Composable
 fun ProfileScreen(
@@ -66,9 +115,17 @@ fun ProfileScreen(
     LaunchedEffect(action) {
         when (action) {
             ProfileSideEffect.NavigateEditProfileScreen -> navController.navigate(ProfileNavScreen.Profile.route)
+            ProfileSideEffect.NavigateBolusInjection -> navController.navigate(BolusNavScreen.BolusInjection.route)
+            ProfileSideEffect.NavigateAccessDelegation -> navController.navigate(ProfileNavScreen.AccessDelegation.route)
+            ProfileSideEffect.NavigateSignInScreen -> navController.navigate(AuthNavScreen.SignIn.route)
             else -> Unit
         }
     }
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    BluetoothDataDisplay(state.bluetoothData, state.isReceivingData)
 
     Column(
         modifier = Modifier
@@ -109,7 +166,7 @@ fun ProfileScreen(
                 if(state.isProfileMode) {
                     ProfileBoxContent(state, eventHandler)
                 } else {
-                    PumpBoxContent(state, eventHandler)
+                    PumpBoxContent(state, eventHandler, activity)
                 }
             }
         }
@@ -221,10 +278,10 @@ fun ProfileMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.insulin),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
         )
@@ -237,37 +294,345 @@ fun ProfileMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit
                 )
             },
             modifier = Modifier,
-            backgroundColor = MaterialTheme.colorScheme.primary,
-            textColor = MaterialTheme.colorScheme.onPrimary,
-            iconColor = MaterialTheme.colorScheme.onPrimary,
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            textColor = MaterialTheme.colorScheme.onTertiary,
+            iconColor = MaterialTheme.colorScheme.onTertiary,
+            textStyle = MaterialTheme.typography.labelLarge,
             textFieldModifier = Modifier
-                .border(2.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f))
                 .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                //.border(1.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f), shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Тип аккаунта",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
+        )
+
+        OutlinedTextField(
+            value = "Главный аккаунт",
+            shape = RoundedCornerShape(8.dp),
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_lock),
+                    contentDescription = null,
+                    modifier = Modifier,
+                    tint = MaterialTheme.colorScheme.onTertiary
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                focusedTextColor = MaterialTheme.colorScheme.onTertiary,
+                unfocusedTextColor = MaterialTheme.colorScheme.onTertiary,
+                cursorColor = MaterialTheme.colorScheme.onTertiary,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            textStyle = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        BaseButton(
+            onClick = { eventHandler.invoke(ProfileEvent.OnDelegateButtonClick) },
+            text = "Делегировать доступ",
+            modifier = Modifier.fillMaxWidth(),
+            backgroundColor = MaterialTheme.colorScheme.tertiary,
+            textColor = MaterialTheme.colorScheme.onTertiary,
+        )
+        Spacer(modifier = Modifier.height(40.dp))
+
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {eventHandler.invoke(ProfileEvent.OnLogOutButtonClick)}
+        ) {
+            Text(
+                text = "Выйти из аккаунта",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.6f),
+                textDecoration = TextDecoration.Underline,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun PumpBoxContent(
+    state: ProfileState,
+    eventHandler: (ProfileEvent) -> Unit,
+    activity: Activity?
+) {
+    var showDeviceSelection by remember { mutableStateOf(false) }
+
+    // Запрос разрешений
+    RequestBluetoothPermissions(
+        onPermissionsGranted = {
+            // Разрешения получены - можно показывать Bluetooth UI
+            showDeviceSelection = true
+        },
+        onPermissionsDenied = {
+            // Обработка отказа в разрешениях
+
+        }
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        if (!state.bluetoothEnabled) {
+            Text(
+                text = "Bluetooth выключен",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            BaseButton(
+                text = "Включить Bluetooth",
+                onClick = {
+                    activity?.let {
+                        eventHandler(ProfileEvent.OnEnableBluetooth(it))
+                    }
+                          },
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = MaterialTheme.colorScheme.surfaceTint,
+                textColor = MaterialTheme.colorScheme.onSecondary,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // Статус подключения
+        Text(
+            text = if (state.isPumpConnected) state.pumpName else stringResource(R.string.pump_not_connected),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Индикатор состояния
+        when (state.connectionProgress) {
+            is ConnectionProgress.Connecting -> {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Подключение...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            is ConnectionProgress.Error -> {
+                Text(
+                    text = (state.connectionProgress as ConnectionProgress.Error).message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+            else -> {}
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Кнопки управления
+        if (!state.isPumpConnected) {
+            BaseButton(
+                text = stringResource(R.string.connect),
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = MaterialTheme.colorScheme.surfaceTint,
+                textColor = MaterialTheme.colorScheme.onSecondary,
+                onClick = {
+                    eventHandler.invoke(ProfileEvent.OnConnectButtonClick)
+                    showDeviceSelection = true
+                }
+            )
+        } else {
+            BaseButton(
+                text = stringResource(R.string.disconnect),
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = MaterialTheme.colorScheme.onPrimary,
+                onClick = { eventHandler.invoke(ProfileEvent.OnDisconnectButtonClick) }
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    // Диалог выбора устройства
+    if (showDeviceSelection) {
+        PumpDeviceSelectionDialog(
+            state = state,
+            onDeviceSelected = { device ->
+                eventHandler.invoke(ProfileEvent.OnDeviceSelected(device))
+                showDeviceSelection = false
+            },
+            onSearchDevices = { eventHandler.invoke(ProfileEvent.OnSearchDevicesClick) },
+            onCancelSearch = { eventHandler.invoke(ProfileEvent.OnCancelSearchClick) },
+            onDismiss = { showDeviceSelection = false }
         )
     }
 }
 
 @Composable
-fun PumpBoxContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
-    Text(
-        text = if(state.isPumpConnected) state.pumpName else stringResource(R.string.pump_not_connected),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    if (!state.isPumpConnected) {
-        BaseButton(
-            text = stringResource(R.string.connect),
-            modifier = Modifier.fillMaxWidth(),
-            backgroundColor = MaterialTheme.colorScheme.surfaceTint,
-            textColor = MaterialTheme.colorScheme.onSecondary,
-            onClick = { eventHandler.invoke(ProfileEvent.OnConnectButtonClick) }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+private fun PumpDeviceSelectionDialog(
+    state: ProfileState,
+    onDeviceSelected: (BluetoothDeviceUI) -> Unit,
+    onSearchDevices: () -> Unit,
+    onCancelSearch: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .width(300.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primary,
+            shadowElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Выберите помпу среди найденных устройств",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                if (state.isSearchingDevices) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Поиск устройств...",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    BaseButton(
+                        onClick = onCancelSearch,
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Отменить поиск",
+                        backgroundColor = MaterialTheme.colorScheme.secondary,
+                        textColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    if (state.foundDevices.isEmpty()) {
+                        Text("Устройства не найдены", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    BaseButton(
+                        onClick = onSearchDevices,
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Поиск устройств",
+                        backgroundColor = MaterialTheme.colorScheme.secondary,
+                        textColor = MaterialTheme.colorScheme.onSecondary
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Найденные устройства:",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onTertiary,
+                        textAlign = TextAlign.Start
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
+                    items(state.foundDevices) { device ->
+                        PumpDeviceItem(
+                            device = device,
+                            onClick = { onDeviceSelected(device) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                BaseButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Отмена",
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                    textColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
+
+@Composable
+private fun PumpDeviceItem(
+    device: BluetoothDeviceUI,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+//            Icon(
+//                imageVector = Icons.Default.MedicalServices,
+//                contentDescription = "Помпа",
+//                tint = MaterialTheme.colorScheme.primary
+//            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = device.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onTertiary
+                )
+            }
+
+            if (device.isConnecting) {
+                Spacer(modifier = Modifier.weight(1f))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
@@ -279,6 +644,7 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
             .fillMaxWidth()
     ) {
         Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = stringResource(R.string.carbohydrates_measurement_unit),
             style = MaterialTheme.typography.labelSmall,
@@ -286,11 +652,9 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         SwitchButton(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 16.dp),
+                .align(Alignment.CenterHorizontally),
             selectedColor = MaterialTheme.colorScheme.secondary,
             backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
             textSelectedColor = MaterialTheme.colorScheme.onSecondary,
@@ -301,6 +665,8 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
         ) { isBreadUnits ->
             if(isBreadUnits != state.isBreadUnits) eventHandler.invoke(ProfileEvent.OnCarbUnitChange)
         }
+        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = stringResource(R.string.carbohydrates_measurement_unit),
             style = MaterialTheme.typography.labelSmall,
@@ -310,8 +676,7 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
         SwitchButton(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 16.dp),
+                .align(Alignment.CenterHorizontally),
             selectedColor = MaterialTheme.colorScheme.secondary,
             backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
             textSelectedColor = MaterialTheme.colorScheme.onSecondary,
@@ -322,6 +687,7 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
         ) { isMmolLiter ->
             if(isMmolLiter != state.isMmolLiter) eventHandler.invoke(ProfileEvent.OnGlucoseUnitChange)
         }
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = stringResource(R.string.active_insulin_time),
@@ -330,7 +696,6 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         OutlinedTextField(
             value = if (state.activeInsulinTime == 0.0f) "" else state.activeInsulinTime.toString(),
             onValueChange = {
@@ -341,12 +706,12 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
                 )
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done,
             ),
+            textStyle = MaterialTheme.typography.labelLarge,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -358,6 +723,8 @@ fun PumpMainContent(state: ProfileState, eventHandler: (ProfileEvent) -> Unit) {
                 unfocusedContainerColor = MaterialTheme.colorScheme.primary
             )
         )
+        Spacer(modifier = Modifier.height(20.dp))
+
         Column(
             modifier = Modifier
                 .fillMaxWidth(),

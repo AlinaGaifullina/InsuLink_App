@@ -1,4 +1,4 @@
-package ru.itis.domain.usecase
+package ru.itis.domain.usecase.pump_settings.target_glucose
 
 import android.util.Log
 import ru.itis.domain.model.TargetGlucose
@@ -11,7 +11,7 @@ class SaveLocalTargetGlucoseUseCase @Inject constructor(
 
     suspend operator fun invoke(target: TargetGlucose) {
         try {
-            repository.saveTarget(target)
+            repository.saveGlucose(target)
         } catch (e: Exception) {
             Log.e("SaveTargetGlucose", "Error saving target: ${target.id}", e)
             throw TargetGlucoseSaveException("Failed to save target glucose", e)

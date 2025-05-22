@@ -7,7 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import ru.itis.presentation.navigation.BottomNavigationItem
 import ru.itis.presentation.navigation.graphs.authNavGraph
-import ru.itis.presentation.screens.profile.ProfileScreen
+import ru.itis.presentation.screens.profile.access_delegation.AccessDelegationScreen
+import ru.itis.presentation.screens.profile.profile.ProfileScreen
 
 fun NavGraphBuilder.profileNavGraph(navController: NavHostController, isBottomBarVisible: MutableState<Boolean>) {
     navigation(
@@ -21,6 +22,12 @@ fun NavGraphBuilder.profileNavGraph(navController: NavHostController, isBottomBa
             isBottomBarVisible.value = true
             ProfileScreen(navController)
         }
+        composable(
+            route = ProfileNavScreen.AccessDelegation.route,
+        ) {
+            isBottomBarVisible.value = false
+            AccessDelegationScreen(navController)
+        }
         authNavGraph(navController = navController, isBottomBarVisible)
     }
 
@@ -30,6 +37,7 @@ sealed class ProfileNavScreen(val route: String) {
 
 
     object Profile : ProfileNavScreen(route = "profile")
+    object AccessDelegation : ProfileNavScreen(route = "access_delegation")
 
     companion object {
         const val USER_ID_KEY = "userId"

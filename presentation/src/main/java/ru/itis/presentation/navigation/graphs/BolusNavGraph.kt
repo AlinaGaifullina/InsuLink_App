@@ -34,17 +34,31 @@ fun NavGraphBuilder.bolusNavGraph(navController: NavHostController, isBottomBarV
                     defaultValue = 0f
                 }
             )
-        ) { backStackEntry ->
+        ) {
             isBottomBarVisible.value = false
-            CalculateBolusScreen(
-                navController = navController
-            )
+            CalculateBolusScreen(navController)
         }
-        composable(route = BolusNavScreen.EditCalculateBolus.route) {
+        composable(
+            route = BolusNavScreen.EditCalculateBolus.route,
+            arguments = listOf(
+                navArgument("bolusValue") {
+                    type = NavType.FloatType
+                    defaultValue = 0f
+                }
+            )
+        ) {
             isBottomBarVisible.value = false
             EditCalculateBolusScreen(navController)
         }
-        composable(route = BolusNavScreen.BolusInjection.route) {
+        composable(
+            route = BolusNavScreen.BolusInjection.route,
+            arguments = listOf(
+                navArgument("bolusValue") {
+                    type = NavType.FloatType
+                    defaultValue = 0f
+                }
+            )
+        ) {
             isBottomBarVisible.value = false
             BolusInjectionScreen(navController)
         }
@@ -61,6 +75,18 @@ sealed class BolusNavScreen(val route: String) {
             glucoseValue: Float
         ) = "calculate_bolus?nutritionValue=$nutritionValue&glucoseValue=$glucoseValue"
     }
-    object EditCalculateBolus : AuthNavScreen(route = "edit_calculate_bolus")
-    object BolusInjection : AuthNavScreen(route = "bolus_injection")
+    object EditCalculateBolus : BolusNavScreen(
+        route = "edit_calculate_bolus?bolusValue={bolusValue}"
+    ){
+        fun createRoute(
+            bolusValue: Float
+        ) = "edit_calculate_bolus?bolusValue=$bolusValue"
+    }
+    object BolusInjection : BolusNavScreen(
+        route = "bolus_injection?bolusValue={bolusValue}"
+    ){
+        fun createRoute(
+            bolusValue: Float
+        ) = "bolus_injection?bolusValue=$bolusValue"
+    }
 }

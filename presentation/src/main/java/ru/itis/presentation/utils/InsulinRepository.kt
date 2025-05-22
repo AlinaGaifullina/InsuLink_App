@@ -14,6 +14,11 @@ data class Insulin(
     }
 }
 
+fun getActiveTimeInHours(insulinName: String): Float? {
+    val insulin = InsulinRepository.insulinList.find { it.name == insulinName }
+    return insulin?.activeTime?.div(60f) // Делим на 60, чтобы перевести минуты в часы
+}
+
 object InsulinRepository {
     val insulinList = listOf(
         Insulin("1", "НовоРапид", 300, 90, "Быстрый"),

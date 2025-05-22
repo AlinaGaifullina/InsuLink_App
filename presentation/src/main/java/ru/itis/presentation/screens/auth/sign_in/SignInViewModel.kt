@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import ru.itis.domain.model.Pump
 import ru.itis.domain.usecase.SaveLocalPumpUseCase
+import ru.itis.domain.usecase.datastore.GetUserIdFromDataStoreUseCase
 import ru.itis.domain.usecase.datastore.SavePumpIdInDataStoreUseCase
 import ru.itis.domain.usecase.datastore.SaveUserIdInDataStoreUseCase
 
@@ -44,6 +45,7 @@ sealed interface SignInEvent {
 class SignInViewModel @Inject constructor(
     private val saveUserIdInDataStoreUseCase: SaveUserIdInDataStoreUseCase,
     private val savePumpIdInDataStoreUseCase: SavePumpIdInDataStoreUseCase,
+    private val getUserIdFromDataStoreUseCase: GetUserIdFromDataStoreUseCase,
     private val saveLocalPumpUseCase: SaveLocalPumpUseCase,
 ) : ViewModel(){
     private val _state: MutableStateFlow<SignInState> = MutableStateFlow(SignInState())
@@ -52,6 +54,17 @@ class SignInViewModel @Inject constructor(
     private val _action = MutableSharedFlow<SignInSideEffect?>()
     val action: SharedFlow<SignInSideEffect?>
         get() = _action.asSharedFlow()
+
+    private var userId: String? = ""
+
+    init {
+        viewModelScope.launch {
+            userId = getUserIdFromDataStoreUseCase()
+            if(userId != null){
+                _action.emit(SignInSideEffect.NavigateProfile)
+            }
+        }
+    }
 
     fun event(event: SignInEvent) {
         when (event) {

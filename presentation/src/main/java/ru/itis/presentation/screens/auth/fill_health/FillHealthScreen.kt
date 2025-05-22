@@ -108,6 +108,7 @@ fun FillHealthMainContent(state: FillHealthState, eventHandler: (FillHealthEvent
                 modifier = Modifier,
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
+                textStyle = MaterialTheme.typography.labelLarge,
                 iconColor = MaterialTheme.colorScheme.onPrimary,
                 textFieldModifier = Modifier
             )

@@ -59,4 +59,14 @@ val Typography = Typography(
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     ),
+    headlineSmall = TextStyle(
+        fontFamily = insulinkFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = insulinkFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
+    ),
 )

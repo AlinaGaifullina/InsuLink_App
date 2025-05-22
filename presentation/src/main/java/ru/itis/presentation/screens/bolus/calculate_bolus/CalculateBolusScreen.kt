@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,12 +53,13 @@ fun CalculateBolusScreen(
 
     LaunchedEffect(action) {
         when (action) {
-            CalculateBolusSideEffect.NavigateEditCalculateBolus -> navController.navigate(BolusNavScreen.EditCalculateBolus.route)
+            CalculateBolusSideEffect.NavigateEditCalculateBolus -> navController.navigate(BolusNavScreen.EditCalculateBolus.createRoute(bolusValue = state.bolusValue))
             CalculateBolusSideEffect.NavigateProfile -> navController.navigate(ProfileNavScreen.Profile.route)
             CalculateBolusSideEffect.NavigateBack -> navController.navigateUp()
             else -> Unit
         }
     }
+
 
     val scrollState = rememberScrollState()
     Column(
@@ -99,7 +101,7 @@ fun CalculateBolusScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSecondary
         )
-        CalculationCard()
+        CalculationCard(state)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,7 +136,9 @@ fun CalculateBolusScreen(
 }
 
 @Composable
-fun CalculationCard(){
+fun CalculationCard(
+    state: CalculateBolusState
+){
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -148,37 +152,56 @@ fun CalculationCard(){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CalculationCardTextRow(
-                title = stringResource(R.string.current_glucose),
-                value = "123"
-            )
-            CalculationCardTextRow(
-                title = stringResource(R.string.current_glucose),
-                value = "123"
-            )
-            CalculationCardTextRow(
-                title = stringResource(R.string.current_glucose),
-                value = "123"
-            )
-            Text(
-                text = stringResource(R.string.total),
-                modifier = Modifier,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceTint)
-            ) {
+            if(state.isLoading){
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .padding(16.dp),
+                    strokeWidth = 4.dp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            } else {
+                CalculationCardTextRow(
+                    title = "Питание",
+                    value = state.nutritionValue.toString()
+                )
+                CalculationCardTextRow(
+                    title = stringResource(R.string.current_glucose),
+                    value = state.glucoseValue.toString()
+                )
+                CalculationCardTextRow(
+                    title =  "На еду",
+                    value = state.insulinForNutrition.toString()
+                )
+                CalculationCardTextRow(
+                    title =  "На коррекцию",
+                    value = state.insulinForCorrection.toString()
+                )
+                CalculationCardTextRow(
+                    title =  "Активный инсулин",
+                    value = "123"
+                )
                 Text(
                     text = stringResource(R.string.total),
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                        .padding(top = 16.dp, bottom = 8.dp),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondaryContainer
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceTint)
+                ) {
+                    Text(
+                        text = state.bolusValue.toString(),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                }
             }
         }
     }
@@ -210,3 +233,4 @@ fun CalculationCardTextRow(
     }
     Spacer(modifier = Modifier.height(16.dp))
 }
+

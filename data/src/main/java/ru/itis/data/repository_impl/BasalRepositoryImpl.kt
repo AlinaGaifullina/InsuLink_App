@@ -16,7 +16,27 @@ class BasalRepositoryImpl @Inject constructor(
         dao.insert(value.toEntity())
     }
 
+    override suspend fun updateBasal(value: Basal) {
+        dao.update(value.toEntity())
+    }
+
+    override suspend fun getBasalById(id: String): Basal? {
+        return dao.getById(id)?.toDomain()
+    }
+
+    override suspend fun getBasalByUserId(userId: String): List<Basal>{
+        return dao.getByUserId(userId).map { it.toDomain() }
+    }
+
     override suspend fun getAllBasal(): List<Basal> {
         return dao.getAll().map { it.toDomain() }
+    }
+
+    override suspend fun deleteBasal(id: String) {
+        dao.deleteById(id)
+    }
+
+    override suspend fun deleteAllBasalForUser (userId: String) {
+        dao.deleteAllByUserId(userId)
     }
 }

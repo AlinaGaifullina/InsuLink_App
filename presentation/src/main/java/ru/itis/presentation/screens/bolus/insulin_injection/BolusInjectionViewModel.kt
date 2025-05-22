@@ -5,17 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import ru.itis.domain.usecase.datastore.SaveIsInsulinInjectionInDataStoreUseCase
 import javax.inject.Inject
 
 
 data class BolusInjectionState(
     val isProcessActive: Boolean = true,
+    val isProcessSuccess: Boolean = true,
     val bolusValue: Float = 0.0f,
 )
 
@@ -33,16 +36,41 @@ sealed interface BolusInjectionSideEffect {
 @HiltViewModel
 class BolusInjectionViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val saveIsInsulinInjectionInDataStoreUseCase: SaveIsInsulinInjectionInDataStoreUseCase,
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<BolusInjectionState> = MutableStateFlow(BolusInjectionState())
+
+    private val initialBolusValue = savedStateHandle.get<Float>("bolusValue") ?: 0f
+
+    private val _state: MutableStateFlow<BolusInjectionState> = MutableStateFlow(
+        BolusInjectionState(
+            bolusValue = initialBolusValue
+        )
+    )
     val state: StateFlow<BolusInjectionState> = _state
 
     private val _action = MutableSharedFlow<BolusInjectionSideEffect?>()
     val action: SharedFlow<BolusInjectionSideEffect?>
         get() = _action.asSharedFlow()
 
+    init {
+        viewModelScope.launch {
+            saveIsInsulinInjectionInDataStoreUseCase(true)
+            delay(10000)
+
+            saveIsInsulinInjectionInDataStoreUseCase(false)
+
+            _state.tryEmit(
+                _state.value.copy(
+                    isProcessSuccess = true,
+                    isProcessActive = false
+                )
+            )
+        }
+    }
+
     fun event(bolusInjectionEvent: BolusInjectionEvent) {
+
         ViewModelProvider.NewInstanceFactory
         when (bolusInjectionEvent) {
             BolusInjectionEvent.OnStopButtonClick -> onStopButtonClick()
@@ -64,6 +92,12 @@ class BolusInjectionViewModel @Inject constructor(
 
     }
     private fun onStopModalButtonClick() {
-        _state.tryEmit(_state.value.copy(isProcessActive = !_state.value.isProcessActive))
+        viewModelScope.launch {
+            saveIsInsulinInjectionInDataStoreUseCase(false)
+        }
+        _state.tryEmit(_state.value.copy(
+            isProcessSuccess = false,
+            isProcessActive = false)
+        )
     }
 }

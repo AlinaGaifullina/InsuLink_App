@@ -36,7 +36,13 @@ class EditCalculateBolusViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<EditCalculateBolusState> = MutableStateFlow(EditCalculateBolusState())
+    private val initialBolusValue = savedStateHandle.get<Float>("bolusValue") ?: 0f
+
+    private val _state: MutableStateFlow<EditCalculateBolusState> = MutableStateFlow(
+        EditCalculateBolusState(
+            bolusValue = initialBolusValue
+        )
+    )
     val state: StateFlow<EditCalculateBolusState> = _state
 
     private val _action = MutableSharedFlow<EditCalculateBolusSideEffect?>()

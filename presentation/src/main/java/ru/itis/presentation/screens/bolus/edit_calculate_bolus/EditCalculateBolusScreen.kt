@@ -49,7 +49,7 @@ fun EditCalculateBolusScreen(
 
     LaunchedEffect(action) {
         when (action) {
-            EditCalculateBolusSideEffect.NavigateBolusInjection -> navController.navigate(BolusNavScreen.BolusInjection.route)
+            EditCalculateBolusSideEffect.NavigateBolusInjection -> navController.navigate(BolusNavScreen.BolusInjection.createRoute(bolusValue = state.bolusValue))
             EditCalculateBolusSideEffect.NavigateProfile -> navController.navigate(ProfileNavScreen.Profile.route)
             EditCalculateBolusSideEffect.NavigateBack -> navController.navigateUp()
             else -> Unit

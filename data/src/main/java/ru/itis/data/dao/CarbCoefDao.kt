@@ -15,6 +15,18 @@ interface CarbCoefDao {
     @Update
     suspend fun update(coef: CarbCoefEntity)
 
+    @Query("SELECT * FROM carb_coef WHERE id = :id")
+    suspend fun getById(id: String): CarbCoefEntity?
+
+    @Query("SELECT * FROM carb_coef WHERE userId = :userId")
+    suspend fun getByUserId(userId: String): List<CarbCoefEntity>
+
     @Query("SELECT * FROM carb_coef")
     suspend fun getAll(): List<CarbCoefEntity>
+
+    @Query("DELETE FROM carb_coef WHERE id = :id")
+    suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM carb_coef WHERE userId = :userId")
+    suspend fun deleteAllByUserId(userId: String)
 }

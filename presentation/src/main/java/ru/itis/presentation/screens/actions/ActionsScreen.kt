@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,7 +18,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,9 +33,16 @@ import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.itis.domain.model.Action
 import ru.itis.domain.model.ActionType
+import ru.itis.domain.model.HistorySizeType
 import ru.itis.presentation.R
+import ru.itis.presentation.components.ThreeButtonsRow
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.Month
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.time.temporal.TemporalAdjusters
+import java.time.format.TextStyle
 
 @Composable
 fun ActionsScreen(
@@ -53,12 +63,68 @@ fun ActionsScreen(
         }
     }
 
+    // В ViewModel или в Composable
+    val currentDate = LocalDate.now()
+    val selectedPeriod by remember { mutableIntStateOf(1) } // 1 - день, 2 - неделя, 3 - месяц
+
+
+// Функция для фильтрации действий
+    val filteredActions = remember(state.listOfActions, state.historySizeType) {
+        when (state.historySizeType) {
+            HistorySizeType.DAY -> {
+                // Только сегодняшние действия
+                state.listOfActions
+                    .filter { it.date.toLocalDate() == currentDate }
+                    .groupBy { it.date.toLocalDate() }
+            }
+
+            HistorySizeType.WEEK -> {
+                // Текущая неделя (пн-вс)
+                val weekStart = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                val weekEnd = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                state.listOfActions
+                    .filter { it.date.toLocalDate() in weekStart..weekEnd }
+                    .groupBy { it.date.toLocalDate() }
+            }
+
+            HistorySizeType.MONTH1 -> {
+                // Текущий месяц (1-число - последний день)
+                val monthStart = currentDate.withDayOfMonth(1)
+                val monthEnd = currentDate.with(TemporalAdjusters.lastDayOfMonth())
+                state.listOfActions
+                    .filter { it.date.toLocalDate() in monthStart..monthEnd }
+                    .groupBy { it.date.toLocalDate() }
+            }
+
+            else -> state.listOfActions.groupBy { it.date.toLocalDate() }
+        }
+    }
+
+    // Для недели - от текущего дня к понедельнику
+    val daysInWeek by remember(currentDate) {
+        derivedStateOf {
+            val start = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            (0..6).map { start.plusDays(it.toLong()) }
+                .filter { it <= currentDate }
+                .sortedDescending() // Сортируем в обратном порядке
+        }
+    }
+
+// Для месяца - от текущего дня к 1 числу
+    val daysInMonth by remember(currentDate) {
+        derivedStateOf {
+            val start = currentDate.withDayOfMonth(1)
+            (0 until currentDate.dayOfMonth).map { start.plusDays(it.toLong()) }
+                .sortedDescending() // Сортируем в обратном порядке
+        }
+    }
+
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primary)
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp)
-            .verticalScroll(scrollState),
+            .padding(start = 20.dp, end = 20.dp),
+            //.verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -70,16 +136,69 @@ fun ActionsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        ThreeButtonsRow(
+            text1 = "День",
+            text2 = "Неделя",
+            text3 = "Месяц",
+            onButtonClick = {
+                eventHandler.invoke(ActionsEvent.OnHistorySizeChange(it))
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Сортируем дни по убыванию (новые сверху)
         val sortedDays = actionsByDay.keys.sortedDescending()
 
-        sortedDays.forEach { day ->
-            val actionsForDay = actionsByDay[day] ?: emptyList()
-            DayActionsCard(
-                dateText = day.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("ru"))),
-                listOfActions = actionsForDay
-            )
-            Spacer(Modifier.height(20.dp))
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+            when (state.historySizeType) {
+                HistorySizeType.DAY -> {
+                    item {
+                        filteredActions[currentDate]?.let { actions ->
+                            DayActionsCard(
+                                dateText = "Сегодня, 15 мая",
+                                listOfActions = actions
+                            )
+                        } ?: Text("Нет действий за сегодня")
+                        Spacer(Modifier.height(20.dp))
+                    }
+                }
+
+                HistorySizeType.WEEK -> {
+                    items(daysInWeek.size) { index ->
+                        val day = daysInWeek[index]
+                        filteredActions[day]?.let { actions ->
+                            DayActionsCard(
+                                dateText = if (day == currentDate) "Четверг, 15 мая"
+                                else "${day.dayOfWeek.displayText()}, ${day.format("d MMMM")}",
+                                listOfActions = actions
+                            )
+                            Spacer(Modifier.height(20.dp))
+                        }
+                    }
+                }
+
+                HistorySizeType.MONTH1 -> {
+                    items(daysInMonth.size) { index ->
+                        val day = daysInMonth[index]
+                        filteredActions[day]?.let { actions ->
+                            DayActionsCard(
+                                dateText = when {
+                                    day == currentDate -> "15 мая"
+                                    day.dayOfMonth == 1 -> "1 ${day.month.displayText()} ${day.year}"
+                                    else -> day.format("d MMMM")
+                                },
+                                listOfActions = actions
+                            )
+                            Spacer(Modifier.height(20.dp))
+                        }
+                    }
+                }
+
+                HistorySizeType.MONTH3 -> TODO()
+            }
         }
         Spacer(Modifier.height(60.dp))
     }
@@ -257,4 +376,26 @@ fun TemporaryBasalCard(
         }
         Spacer(Modifier.height(8.dp))
     }
+}
+
+
+private fun DayOfWeek.displayText(): String {
+    return when (this) {
+        DayOfWeek.MONDAY -> "Понедельник"
+        DayOfWeek.TUESDAY -> "Вторник"
+        DayOfWeek.WEDNESDAY -> "Среда"
+        DayOfWeek.THURSDAY -> "Четверг"
+        DayOfWeek.FRIDAY -> "Пятница"
+        DayOfWeek.SATURDAY -> "Суббота"
+        DayOfWeek.SUNDAY -> "Воскресенье"
+    }
+}
+
+private fun LocalDate.format(pattern: String): String {
+    val formatter = DateTimeFormatter.ofPattern(pattern, Locale("ru"))
+    return this.format(formatter)
+}
+
+private fun Month.displayText(): String {
+    return getDisplayName(TextStyle.FULL, Locale("ru"))
 }

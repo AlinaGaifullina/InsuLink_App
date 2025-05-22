@@ -59,6 +59,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.places)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,6 +70,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.compose.runtime:runtime-livedata:1.8.0")
+
+    implementation("com.google.accompanist:accompanist-permissions:0.24.12-rc")
 
     implementation(libs.androidx.navigation.compose)
 }

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import ru.itis.presentation.screens.auth.sign_in.SignInEvent
 import javax.inject.Inject
 
 
@@ -21,6 +20,7 @@ data class SignUpState(
     val passwordVisible: Boolean = false,
     val showLoadingProgressBar: Boolean = false,
     val showErrors: Boolean = false,
+    val isMainAccount: Boolean = true,
     val loginError: String = "",
     val errors: List<String> = listOf()
 )
@@ -34,6 +34,7 @@ sealed interface SignUpEvent {
     object OnRegisterButtonClick : SignUpEvent
     object OnLoginButtonCLick : SignUpEvent
     object OnPasswordVisibilityChange : SignUpEvent
+    object OnIsMainAccountChange : SignUpEvent
     data class OnEmailChange(val value: String) : SignUpEvent
     data class OnNameChange(val value: String) : SignUpEvent
     data class OnPasswordChange(val value: String) : SignUpEvent
@@ -58,6 +59,7 @@ class SignUpViewModel @Inject constructor(
             SignUpEvent.OnRegisterButtonClick -> onRegisterButtonClick()
             SignUpEvent.OnLoginButtonCLick -> onLoginButtonClick()
             SignUpEvent.OnPasswordVisibilityChange -> onPasswordVisibilityChange()
+            SignUpEvent.OnIsMainAccountChange -> onIsMainAccountChange()
             is SignUpEvent.OnNameChange -> onNameChange(event.value)
             is SignUpEvent.OnEmailChange -> onEmailChange(event.value)
             is SignUpEvent.OnPasswordChange -> onPasswordChange(event.value)
@@ -83,6 +85,10 @@ class SignUpViewModel @Inject constructor(
 
     private fun onPasswordVisibilityChange() {
         _state.tryEmit(_state.value.copy(passwordVisible = !_state.value.passwordVisible))
+    }
+
+    private fun onIsMainAccountChange() {
+        _state.tryEmit(_state.value.copy(isMainAccount = !_state.value.isMainAccount))
     }
 
 

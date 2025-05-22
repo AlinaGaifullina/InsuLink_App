@@ -16,7 +16,27 @@ class CarbCoefRepositoryImpl @Inject constructor(
         dao.insert(coef.toEntity())
     }
 
+    override suspend fun updateCarbCoef(coef: CarbCoef) {
+        dao.update(coef.toEntity())
+    }
+
+    override suspend fun getCarbCoefById(id: String): CarbCoef? {
+        return dao.getById(id)?.toDomain()
+    }
+
+    override suspend fun getCarbCoefByUserId(userId: String): List<CarbCoef> {
+        return dao.getByUserId(userId).map { it.toDomain() }
+    }
+
     override suspend fun getAllCarbCoefs(): List<CarbCoef> {
         return dao.getAll().map { it.toDomain() }
+    }
+
+    override suspend fun deleteCarbCoef(id: String) {
+        dao.deleteById(id)
+    }
+
+    override suspend fun deleteAllCarbCoefsForUser (userId: String) {
+        dao.deleteAllByUserId(userId)
     }
 }

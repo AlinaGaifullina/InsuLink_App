@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -77,7 +79,9 @@ fun BolusInjectionScreen(
     ) {
         if(state.isProcessActive){
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
@@ -87,21 +91,28 @@ fun BolusInjectionScreen(
                     color = MaterialTheme.colorScheme.onSecondary,
                     textAlign = TextAlign.Center
                 )
-            }
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceTint)
-            ) {
-                Text(
-                    text = "${state.bolusValue} Е",
+                Spacer(modifier = Modifier.height(22.dp))
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(vertical = 16.dp, horizontal = 24.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                )
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceTint)
+                ) {
+                    Text(
+                        text = "${state.bolusValue} Е",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(vertical = 16.dp, horizontal = 24.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                }
             }
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(64.dp),
+                strokeWidth = 4.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
             BaseButton(
                 onClick = {
                     showDialog = true
@@ -171,12 +182,22 @@ fun BolusInjectionScreen(
             }
         } else {
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.process_stopped),
-                modifier = Modifier,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
+            if(state.isProcessSuccess){
+                Text(
+                    text = "Введение успешно завершено",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.process_stopped),
+                    modifier = Modifier,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
             BaseButton(
                 onClick = { eventHandler.invoke(BolusInjectionEvent.OnOkButtonClick) },
                 text = stringResource(R.string.good),

@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import ru.itis.presentation.components.BaseButton
+import ru.itis.presentation.components.SwitchButton
 
 
 @Composable
@@ -66,7 +67,7 @@ private fun SignUpMainContent(state: SignUpState, eventHandler: (SignUpEvent) ->
     ) {
         Column {
             Text(
-                text = stringResource(id = R.string.sign_up),
+                text = "Зарегистрировать аккаунт",
                 modifier = Modifier,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSecondary
@@ -75,6 +76,22 @@ private fun SignUpMainContent(state: SignUpState, eventHandler: (SignUpEvent) ->
 
         // fields
         Column {
+            SwitchButton(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally),
+                selectedColor = MaterialTheme.colorScheme.surfaceTint,
+                backgroundColor = MaterialTheme.colorScheme.primary.copy(0.3f),
+                textSelectedColor = MaterialTheme.colorScheme.onSecondary,
+                textBackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(0.8f),
+                height = 56.dp,
+                titleFirst = "Главный",
+                titleSecond = "Дочерний"
+            ) { isMainAccount ->
+                if(isMainAccount != state.isMainAccount) eventHandler.invoke(SignUpEvent.OnIsMainAccountChange)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             AuthTextField(
                 stringResource(id = R.string.user_name),
                 state.name

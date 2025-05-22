@@ -76,7 +76,7 @@ fun ExpandableGlucoseItem(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
                 .background(MaterialTheme.colorScheme.primary)
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                .padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -86,7 +86,9 @@ fun ExpandableGlucoseItem(
                     .background(MaterialTheme.colorScheme.tertiary)
             )
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -5,23 +5,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import ru.itis.domain.model.Action
+import ru.itis.domain.model.HistorySizeType
 import javax.inject.Inject
 
 
 data class StatisticsState(
     val userPhone: String = "",
-    val userFirstName: String = "",
-    val userLastName: String = "",
-    val userCity: String? = null,
-    val userCountry: String? = null,
+    val statisticsType: HistorySizeType = HistorySizeType.WEEK,
+    val isLoading: Boolean = false,
+    val listOfActions: List<Action> = listOf(),
 )
 
 sealed interface StatisticsEvent {
+    data class OnStatisticsTypeChange(val value: HistorySizeType) : StatisticsEvent
 }
 
 sealed interface StatisticsSideEffect {
@@ -42,8 +46,23 @@ class StatisticsViewModel @Inject constructor(
 
     fun event(statisticsEvent: StatisticsEvent) {
         ViewModelProvider.NewInstanceFactory
-//        when (statisticsEvent) {
-//
-//        }
+        when (statisticsEvent) {
+            is StatisticsEvent.OnStatisticsTypeChange -> onStatisticsTypeChange(statisticsEvent.value)
+        }
+    }
+
+    private fun onStatisticsTypeChange(type: HistorySizeType) {
+        viewModelScope.launch {
+            _state.tryEmit(_state.value.copy(isLoading = true))
+
+            delay(500)
+
+            _state.tryEmit(
+                _state.value.copy(
+                    statisticsType = type,
+                    isLoading = false
+                )
+            )
+        }
     }
 }

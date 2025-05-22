@@ -45,8 +45,6 @@
     <string name="user_height">Рост(см)</string>
     <string name="user_weight">Вес(кг)</string>
     <string name="gender">Пол</string>
-    <string name="connect">Подключить</string>
-    <string name="pump_not_connected">Помпа не подключена</string>
     <string name="carbohydrates_measurement_unit">Единица измерения углеводов</string>
     <string name="bread_unit">ХЕ</string>
     <string name="grams_unit">Граммы</string>
@@ -60,6 +58,16 @@
     <string name="target_glucose">Целевая глюкоза</string>
     <string name="unit_hour">ед/ч</string>
     <string name="add_new_interval">Добавить новый интервал</string>
+    <string name="pump_not_connected">Помпа не подключена</string>
+    <string name="connect">Подключить</string>
+    <string name="disconnect">Отключить</string>
+    <string name="searching_devices">Поиск устройств...</string>
+    <string name="cancel_search">Отменить поиск</string>
+    <string name="search_devices">Поиск устройств</string>
+    <string name="select_pump">Выберите помпу</string>
+    <string name="no_devices_found">Устройства не найдены</string>
+    <string name="connection_error">Ошибка подключения</string>
+    <string name="connecting">Подключение...</string>
 
     <!-- Журнал действий -->
     <string name="action_log">Журнал действий</string>

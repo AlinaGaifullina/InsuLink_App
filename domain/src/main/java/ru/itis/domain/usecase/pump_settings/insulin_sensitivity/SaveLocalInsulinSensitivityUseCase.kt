@@ -1,4 +1,4 @@
-package ru.itis.domain.usecase
+package ru.itis.domain.usecase.pump_settings.insulin_sensitivity
 
 import android.util.Log
 import ru.itis.domain.model.InsulinSensitivity

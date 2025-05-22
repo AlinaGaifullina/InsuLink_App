@@ -16,6 +16,18 @@ interface BasalDao {
     @Update
     suspend fun update(value: BasalEntity)
 
+    @Query("SELECT * FROM basal WHERE id = :id")
+    suspend fun getById(id: String): BasalEntity?
+
     @Query("SELECT * FROM basal")
     suspend fun getAll(): List<BasalEntity>
+
+    @Query("SELECT * FROM basal WHERE userId = :userId")
+    suspend fun getByUserId(userId: String): List<BasalEntity>
+
+    @Query("DELETE FROM basal WHERE id = :id")
+    suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM basal WHERE userId = :userId")
+    suspend fun deleteAllByUserId(userId: String)
 }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import ru.itis.presentation.R
 
@@ -34,6 +35,7 @@ fun DropdownTextField(
     modifier: Modifier = Modifier,
     backgroundColor: Color,
     textColor: Color,
+    textStyle: TextStyle,
     iconColor: Color,
     textFieldModifier: Modifier
 ) {
